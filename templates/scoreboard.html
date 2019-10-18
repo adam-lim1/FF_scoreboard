@@ -1,6 +1,7 @@
 <!doctype html>
-<title> Hello from Flask </title>
-<h1>Hello, World!: {{ time }}</h1>
+<title> Fantasy Football Scorebaord </title>
+<h1>Hello, World!</h1>
+Last Updated: {{ time }}
 
 <h2> RESOURCES </h2>
 <a href="https://www.adamlim.me" target="_blank">FORM - Set Multiplayer</a <br></br>
@@ -10,6 +11,16 @@
 
 <!-- ################## SELECT WEEK BUTTON ################## -->
 <style>
+#main {
+  width: 450px;
+  border: 1px dotted black;
+}
+.header-inline {
+  margin: 0;
+    display: inline-block;
+}
+
+
 /* Style The Dropdown Button */
 .dropbtn {
   background-color: #4CAF50;
@@ -23,7 +34,8 @@
 /* The container <div> - needed to position the dropdown content */
 .dropdown {
   position: relative;
-  display: inline-block;
+  /* display: inline-block; */
+  float: right
 }
 
 /* Dropdown Content (Hidden by Default) */
@@ -56,21 +68,42 @@
 .dropdown:hover .dropbtn {
   background-color: #3e8e41;
 }
-</style>
 
+
+
+</style>
+<div id="main">
+<h2 class="header-inline"> SCOREBOARD - {{ input1 }}</h2>
 <div class="dropdown">
   <button class="dropbtn">Select Week</button>
   <div class="dropdown-content">
     <a href="/">Week 1</a>
     <a href="/Week2">Week 2</a>
     <a href="/Week3">Week 3</a>
+    <a href="/Week4">Week 4</a>
+    <a href="/Week5">Week 5</a>
+    <a href="/Week6">Week 6</a>
+    <a href="/Week7">Week 7</a>
+    <a href="/Week8">Week 8</a>
+    <a href="/Week9">Week 9</a>
+    <a href="/Week10">Week 10</a>
+    <a href="/Week11">Week 11</a>
+    <a href="/Week12">Week 12</a>
+    <a href="/Week13">Week 13</a>
+    <a href="/Week14">Week 14</a>
+    <a href="/Week15">Week 15</a>
+    <a href="/Week16">Week 16</a>
+    <a href="/Week17">Week 17</a>
+
   </div>
 </div>
 <br></br>
 
+</div>
+
 <!-- ################## END OF SELECT WEEK BUTTON ################## -->
 
-<h2> SCOREBOARD - {{ input1 }}</h2>
+
 <style>
   table {
     border-collapse: collapse;
