@@ -1,0 +1,240 @@
+<!doctype html>
+<title> Hello from Flask </title>
+<h1>Hello, World!: {{ time }}</h1>
+
+<h2> RESOURCES </h2>
+<a href="https://www.adamlim.me" target="_blank">FORM - Set Multiplayer</a <br></br>
+<a href="https://www.adamlim.me" target="_blank">REFERENCE - View Past Multiplayer Results</a>
+
+<br></br>
+
+<!-- ################## SELECT WEEK BUTTON ################## -->
+<style>
+/* Style The Dropdown Button */
+.dropbtn {
+  background-color: #4CAF50;
+  color: white;
+  padding: 10px;
+  font-size: 16px;
+  border: none;
+  cursor: pointer;
+}
+
+/* The container <div> - needed to position the dropdown content */
+.dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+/* Dropdown Content (Hidden by Default) */
+.dropdown-content {
+  display: none;
+  position: absolute;
+  background-color: #f9f9f9;
+  min-width: 160px;
+  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+  z-index: 1;
+}
+
+/* Links inside the dropdown */
+.dropdown-content a {
+  color: black;
+  padding: 12px 16px;
+  text-decoration: none;
+  display: block;
+}
+
+/* Change color of dropdown links on hover */
+.dropdown-content a:hover {background-color: #f1f1f1}
+
+/* Show the dropdown menu on hover */
+.dropdown:hover .dropdown-content {
+  display: block;
+}
+
+/* Change the background color of the dropdown button when the dropdown content is shown */
+.dropdown:hover .dropbtn {
+  background-color: #3e8e41;
+}
+</style>
+
+<div class="dropdown">
+  <button class="dropbtn">Select Week</button>
+  <div class="dropdown-content">
+    <a href="/">Week 1</a>
+    <a href="/Week2">Week 2</a>
+    <a href="/Week3">Week 3</a>
+  </div>
+</div>
+<br></br>
+
+<!-- ################## END OF SELECT WEEK BUTTON ################## -->
+
+<h2> SCOREBOARD - {{ input1 }}</h2>
+<style>
+  table {
+    border-collapse: collapse;
+  }
+  th, td {
+    border: 1px solid black;
+    padding: 10px;
+    text-align: left;
+  }
+</style>
+
+
+<b> Matchup 1 </b>
+<table>
+  <tr>
+    <th>Team</th>
+    <th>Multiplayer</th>
+    <th>Multiplier</th>
+    <th>Score Adjustment</th>
+    <th>Overall Score (Adjusted)</th>
+  </tr>
+  <tr>
+    <td>{{ input1 }}</td>
+    <td>Baker Mayfield</td>
+    <td>[ MULTIPLIER INPUT HERE]</td>
+    <td>[ MULTIPLIER * PLAYER SCORE HERE]</td>
+    <td>[ PLACEHOLDER]</td>
+  </tr>
+  <tr>
+    <td>{{ input1 }}</td>
+    <td>Not Baker Mayfield</td>
+    <td>[ MULTIPLIER INPUT HERE]</td>
+    <td>[ MULTIPLIER * PLAYER SCORE HERE]</td>
+    <td>[ PLACEHOLDER]</td>
+  </tr>
+</table>
+<br></br>
+
+<b> Matchup 2 </b>
+<table>
+  <tr>
+    <th>Team</th>
+    <th>Multiplayer</th>
+    <th>Multiplier</th>
+    <th>Score Adjustment</th>
+    <th>Overall Score (Adjusted)</th>
+  </tr>
+  <tr>
+    <td>{{ input1 }}</td>
+    <td>Baker Mayfield</td>
+    <td>[ MULTIPLIER INPUT HERE]</td>
+    <td>[ MULTIPLIER * PLAYER SCORE HERE]</td>
+    <td>[ PLACEHOLDER]</td>
+  </tr>
+  <tr>
+    <td>{{ input1 }}</td>
+    <td>Not Baker Mayfield</td>
+    <td>[ MULTIPLIER INPUT HERE]</td>
+    <td>[ MULTIPLIER * PLAYER SCORE HERE]</td>
+    <td>[ PLACEHOLDER]</td>
+  </tr>
+</table>
+<br></br>
+
+<b> Matchup 3 </b>
+<table>
+  <tr>
+    <th>Team</th>
+    <th>Multiplayer</th>
+    <th>Multiplier</th>
+    <th>Score Adjustment</th>
+    <th>Overall Score (Adjusted)</th>
+  </tr>
+  <tr>
+    <td>{{ input1 }}</td>
+    <td>Baker Mayfield</td>
+    <td>[ MULTIPLIER INPUT HERE]</td>
+    <td>[ MULTIPLIER * PLAYER SCORE HERE]</td>
+    <td>[ PLACEHOLDER]</td>
+  </tr>
+  <tr>
+    <td>{{ input1 }}</td>
+    <td>Not Baker Mayfield</td>
+    <td>[ MULTIPLIER INPUT HERE]</td>
+    <td>[ MULTIPLIER * PLAYER SCORE HERE]</td>
+    <td>[ PLACEHOLDER]</td>
+  </tr>
+</table>
+<br></br>
+
+<b> Matchup 4 </b>
+<table>
+  <tr>
+    <th>Team</th>
+    <th>Multiplayer</th>
+    <th>Multiplier</th>
+    <th>Score Adjustment</th>
+    <th>Overall Score (Adjusted)</th>
+  </tr>
+  <tr>
+    <td>{{ input1 }}</td>
+    <td>Baker Mayfield</td>
+    <td>[ MULTIPLIER INPUT HERE]</td>
+    <td>[ MULTIPLIER * PLAYER SCORE HERE]</td>
+    <td>[ PLACEHOLDER]</td>
+  </tr>
+  <tr>
+    <td>{{ input1 }}</td>
+    <td>Not Baker Mayfield</td>
+    <td>[ MULTIPLIER INPUT HERE]</td>
+    <td>[ MULTIPLIER * PLAYER SCORE HERE]</td>
+    <td>[ PLACEHOLDER]</td>
+  </tr>
+</table>
+<br></br>
+
+<b> Matchup 5 </b>
+<table>
+  <tr>
+    <th>Team</th>
+    <th>Multiplayer</th>
+    <th>Multiplier</th>
+    <th>Score Adjustment</th>
+    <th>Overall Score (Adjusted)</th>
+  </tr>
+  <tr>
+    <td>{{ input1 }}</td>
+    <td>Baker Mayfield</td>
+    <td>[ MULTIPLIER INPUT HERE]</td>
+    <td>[ MULTIPLIER * PLAYER SCORE HERE]</td>
+    <td>[ PLACEHOLDER]</td>
+  </tr>
+  <tr>
+    <td>{{ input1 }}</td>
+    <td>Not Baker Mayfield</td>
+    <td>[ MULTIPLIER INPUT HERE]</td>
+    <td>[ MULTIPLIER * PLAYER SCORE HERE]</td>
+    <td>[ PLACEHOLDER]</td>
+  </tr>
+</table>
+<br></br>
+
+<b> Matchup 6 </b>
+<table>
+  <tr>
+    <th>Team</th>
+    <th>Multiplayer</th>
+    <th>Multiplier</th>
+    <th>Score Adjustment</th>
+    <th>Overall Score (Adjusted)</th>
+  </tr>
+  <tr>
+    <td>{{ input1 }}</td>
+    <td>Baker Mayfield</td>
+    <td>[ MULTIPLIER INPUT HERE]</td>
+    <td>[ MULTIPLIER * PLAYER SCORE HERE]</td>
+    <td>[ PLACEHOLDER]</td>
+  </tr>
+  <tr>
+    <td>{{ input1 }}</td>
+    <td>Not Baker Mayfield</td>
+    <td>[ MULTIPLIER INPUT HERE]</td>
+    <td>[ MULTIPLIER * PLAYER SCORE HERE]</td>
+    <td>[ PLACEHOLDER]</td>
+  </tr>
+</table>
+<br></br>
