@@ -16,9 +16,12 @@ import helpers as helpers
 
 app = Flask(__name__)
 
+################################################################################
 ##  ******************* GET CONFIG INFO *******************
-config = configparser.ConfigParser()
+################################################################################
+config = configparser.RawConfigParser()
 config.read('config.txt')
+
 
 # Google Sheets Parameters
 SAMPLE_SPREADSHEET_ID = config.get('Sheets Parameters', 'SAMPLE_SPREADSHEET_ID')
@@ -26,6 +29,18 @@ SAMPLE_RANGE_NAME = config.get('Sheets Parameters', 'SAMPLE_RANGE_NAME')
 
 # League Parameters
 multiplierList = [float(x) for x in config.get('League Parameters', 'multiplierList').split(', ')]
+
+# ESPN Parameters
+leagueID = config.get('ESPN Parameters', 'leagueID')
+year = config.get('ESPN Parameters', 'year')
+swid_cookie = config.get('ESPN Parameters', 'swid_cookie')
+s2_cookie = config.get('ESPN Parameters', 's2_cookie')
+
+################################################################################
+##  ******************* GET DATA FROM GOOGLE/ESPN *******************
+################################################################################
+
+initialTime=datetime.datetime.now()
 
 ##  ******************* PROCESS INPUT FROM GOOGLE SHEETS *******************
 # Get data from sheets
@@ -35,16 +50,50 @@ sheetsDF = helpers.getSheetsData(SAMPLE_SPREADSHEET_ID, SAMPLE_RANGE_NAME)
 multiplierPivot, unstacked_multiplierDF = helpers.getMultipliers(sheetsDF, multiplierList)
 multiplierDF = sheetsDF.merge(unstacked_multiplierDF, left_on=['Team', 'Week'], right_on=['Team', 'Week'], how='left')
 
+##  ******************* PULL MATCHUPS AND SCORING FROM ESPN *******************
+# Team names and ID
+teamsDF = helpers.getTeamsKey(leagueID, year, swid_cookie, s2_cookie)
 
+
+
+################################################################################
 ##  ******************* RENDER PAGES WITH FLASK *******************
+################################################################################
+
 @app.route('/')
 def week1_page():
+    viewWeek = 1
+
+    # GET SHEETS INPUT
+
+    # GET TEAM SCORES FOR WEEK
+    scoreboardDF = helpers.getWeekScoreboard(leagueID, year, swid_cookie, s2_cookie, viewWeek)
+    scoreboardDF = scoreboardDF.merge(teamsDF, left_on='teamID', right_index=True, how='left')
+    scoreboardDF = scoreboardDF.rename(columns={'FullTeamName':'Team'})
+
+    # GET PLAYER SCORES FOR WEEK
+    playerScoresDF = helpers.getWeekPlayerScores(leagueID, year, swid_cookie, s2_cookie, viewWeek)
+    # JOIN
 
     # Python code would go here
 
+    ### GET DICT OF SCORES
+    scoreboardDict = {}
+
+    for game in range(1,6+1):
+        matchupDict = {}
+        for home_away in ["Home", "Away"]:
+            teamDict = {
+                'Team': scoreboardDF.query('matchupID == {}'.format(game)).query('home_away=="{}"'.format(home_away))['Team'].values[0],
+                'Points': scoreboardDF.query('matchupID == {}'.format(game)).query('home_away=="{}"'.format(home_away))['Points'].values[0]
+            }
+            matchupDict[home_away] = teamDict
+        scoreboardDict[game] = matchupDict
+
     return render_template('scoreboard.html',
-                            input1='Week 1',
+                            input1=initialTime,
                             input2='Input 2',
+                            scoreboardDict=scoreboardDict,
                             time=datetime.datetime.now())
 
 @app.route('/Week2')

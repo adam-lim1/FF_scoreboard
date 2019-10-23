@@ -126,18 +126,18 @@ Last Updated: {{ time }}
     <th>Overall Score (Adjusted)</th>
   </tr>
   <tr>
-    <td>{{ input1 }}</td>
+    <td>{{ scoreboardDict[1]['Home']['Team'] }}</td>
     <td>Baker Mayfield</td>
     <td>[ MULTIPLIER INPUT HERE]</td>
     <td>[ MULTIPLIER * PLAYER SCORE HERE]</td>
-    <td>[ PLACEHOLDER]</td>
+    <td>{{ scoreboardDict[1]['Home']['Points'] }}</td>
   </tr>
   <tr>
-    <td>{{ input1 }}</td>
+    <td>{{ scoreboardDict[1]['Away']['Team'] }}</td>
     <td>Not Baker Mayfield</td>
     <td>[ MULTIPLIER INPUT HERE]</td>
     <td>[ MULTIPLIER * PLAYER SCORE HERE]</td>
-    <td>[ PLACEHOLDER]</td>
+    <td>{{ scoreboardDict[1]['Away']['Points'] }}</td>
   </tr>
 </table>
 <br></br>
