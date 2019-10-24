@@ -247,3 +247,11 @@ def week17_page():
                             input1='Week 17',
                             input2='Input 2',
                             time=datetime.datetime.now())
+
+@app.route('/MultiplierResults')
+def multiplier_page():
+
+    # Python code would go here
+
+      return render_template('multipliers.html',
+                            time=datetime.datetime.now())
