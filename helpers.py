@@ -60,6 +60,7 @@ def getSheetsData(SAMPLE_SPREADSHEET_ID, SAMPLE_RANGE_NAME, fillNullValue=np.nan
     # MERGE TIMESTAMP, MULTIPLAYER, SEED
     temp1 = timestampDF.merge(multiplayerDF, left_on=['Week', 'Team'], right_on=['Week', 'Team'], how='left')
     outputDF = temp1.merge(seedDF, left_on=['Week', 'Team'], right_on=['Week', 'Team'], how='left')
+    outputDF['Week'] = outputDF['Week'].apply(lambda x: int(x.split(' ')[1]))
 
     ### ToDo - Verify if player entered before kickoff time ###
 
@@ -113,6 +114,16 @@ def getTeamsKey(leagueID, year, swid_cookie, s2_cookie):
     return teamsKey
 
 def getWeekScoreboard(leagueID, year, swid_cookie, s2_cookie, viewWeek):
+    '''
+
+    :param leagueID:
+    :param year:
+    :param swid_cookie:
+    :param s2_cookie:
+    :param viewWeek:
+    :return:
+    '''
+
     url = "https://fantasy.espn.com/apis/v3/games/ffl/seasons/{year}/segments/0/leagues/{leagueID}?view=mBoxscore".format(
     leagueID=leagueID,
     year=year)
@@ -227,9 +238,32 @@ def getWeekPlayerScores(leagueID, year, swid_cookie, s2_cookie, viewWeek):
                                  'Pos', 'Status', 'Proj', 'Actual'])
     return data
 
-def query_scoreboard(df, week, matchupID, home_away):
-    temp_df = df.query('Week == {}'.format(week))\
-                .query('matchupID == {}'.format(matchupID))\
-                .query('home_away == "{}"'.format(home_away))
+def mergeScores(teamsDF, scoreboardDF, multiplierDF, playerScoresDF):
+    df = scoreboardDF.merge(teamsDF, left_on='teamID', right_index=True, how='left')
+    df = df.merge(multiplierDF, left_on=['Week', 'FullTeamName'], right_on=['Week', 'Team'], how='left')
+    df = df.merge(playerScoresDF, left_on=['Week', 'teamID', 'Multiplayer'], right_on=["Week", 'Team ID', 'Player'], how='left')
+    df = df[['Week', 'matchupID','home_away', 'Points', 'FullTeamName', 'Timestamp', 'Multiplayer', 'Multiplier', 'Actual']]
 
-    return temp_df
+    df['Multiplier'] = np.where(df['Actual'].isnull()==True, None, df['Multiplier'])
+    df['Adjustment'] = -1*(1-df['Multiplier'])*df['Actual']
+    df['AdjustedScore'] = df['Adjustment'] + df['Points']
+    df['AdjustedScore'] = np.where(df['AdjustedScore'].isnull()==True, df['Points'], df['AdjustedScore'])
+
+    return df
+
+def scoresToDict(scoreboardDF, nbrGames):
+    scoreboardDict = {}
+    for game in range(1, nbrGames + 1):
+        matchupDict = {}
+        for home_away in ["Home", "Away"]:
+            teamDict = {
+                'Team': scoreboardDF.query('matchupID == {}'.format(game)).query('home_away=="{}"'.format(home_away))['FullTeamName'].values[0],
+                'Multiplayer': scoreboardDF.query('matchupID == {}'.format(game)).query('home_away=="{}"'.format(home_away))['Multiplayer'].values[0],
+                'Multiplier': scoreboardDF.query('matchupID == {}'.format(game)).query('home_away=="{}"'.format(home_away))['Multiplier'].values[0],
+                'Score Adjustment': scoreboardDF.query('matchupID == {}'.format(game)).query('home_away=="{}"'.format(home_away))['Adjustment'].values[0],
+                'Adjusted Score': scoreboardDF.query('matchupID == {}'.format(game)).query('home_away=="{}"'.format(home_away))['AdjustedScore'].values[0],
+            }
+            matchupDict[home_away] = teamDict
+        scoreboardDict[game] = matchupDict
+
+    return scoreboardDict
