@@ -1,4 +1,4 @@
-from flask import Flask, render_template
+from flask import Flask, render_template, redirect
 import datetime
 import requests
 import configparser
@@ -58,37 +58,19 @@ teamsDF = helpers.getTeamsKey(leagueID, year, swid_cookie, s2_cookie)
 ##  ******************* RENDER PAGES WITH FLASK *******************
 ################################################################################
 
-@app.route('/')
-def week1_page():
-    viewWeek = 1
+@app.route('/scoreboard')
+def scoreboard_page():
+    ## Find current week and redirect to there
+    currentWeek = helpers.getCurrentWeek(leagueID, year, swid_cookie, s2_cookie)
+    currentWeek = str(currentWeek)
 
-    # GET SHEETS INPUT
-    sheetsDF = helpers.getSheetsData(SAMPLE_SPREADSHEET_ID, SAMPLE_RANGE_NAME)
-    multiplierPivot, unstacked_multiplierDF = helpers.getMultipliers(sheetsDF, multiplierList)
-    multiplierDF = sheetsDF.merge(unstacked_multiplierDF, left_on=['Team', 'Week'], right_on=['Team', 'Week'], how='left')
+    return redirect('/scoreboard/week{}'.format(currentWeek))
 
-    # GET TEAM SCORES FOR WEEK
-    scoreboardDF = helpers.getWeekScoreboard(leagueID, year, swid_cookie, s2_cookie, viewWeek)
-    scoreboardDF = scoreboardDF.merge(teamsDF, left_on='teamID', right_index=True, how='left')
-    scoreboardDF = scoreboardDF.rename(columns={'FullTeamName':'Team'})
+### Generic routing function to cover each week
+@app.route('/scoreboard/week<viewWeek>')
+def weekGeneric_page(viewWeek):
 
-    # GET PLAYER SCORES FOR WEEK
-    playerScoresDF = helpers.getWeekPlayerScores(leagueID, year, swid_cookie, s2_cookie, viewWeek)
-
-    # JOIN
-    adjustedScores = helpers.mergeScores(teamsDF, scoreboardDF, multiplierDF, playerScoresDF)
-    scoreboardDict = helpers.scoresToDict(adjustedScores, 6)
-
-    return render_template('scoreboard.html',
-                            input1='Week 1',
-                            scoreboardDict=scoreboardDict,
-                            time=datetime.datetime.now())
-
-@app.route('/Week2')
-def week2_page():
-
-    # Python code would go here
-    viewWeek = 2
+    viewWeek = int(viewWeek)
 
     # GET SHEETS INPUT
     sheetsDF = helpers.getSheetsData(SAMPLE_SPREADSHEET_ID, SAMPLE_RANGE_NAME)
@@ -108,178 +90,12 @@ def week2_page():
     scoreboardDict = helpers.scoresToDict(adjustedScores, int(teamsDF.shape[0]/2))
 
     return render_template('scoreboard.html',
-                            input1='Week 2',
+                            input1='Week {}'.format(viewWeek),
                             scoreboardDict=scoreboardDict,
-                            time=datetime.datetime.now())
-
-@app.route('/Week3')
-def week3_page(viewWeek=3):
-
-    # Python code would go here
-
-    # GET SHEETS INPUT
-    sheetsDF = helpers.getSheetsData(SAMPLE_SPREADSHEET_ID, SAMPLE_RANGE_NAME)
-    multiplierPivot, unstacked_multiplierDF = helpers.getMultipliers(sheetsDF, multiplierList)
-    multiplierDF = sheetsDF.merge(unstacked_multiplierDF, left_on=['Team', 'Week'], right_on=['Team', 'Week'], how='left')
-
-    # GET TEAM SCORES FOR WEEK
-    scoreboardDF = helpers.getWeekScoreboard(leagueID, year, swid_cookie, s2_cookie, viewWeek)
-    scoreboardDF = scoreboardDF.merge(teamsDF, left_on='teamID', right_index=True, how='left')
-    scoreboardDF = scoreboardDF.rename(columns={'FullTeamName':'Team'})
-
-    # GET PLAYER SCORES FOR WEEK
-    playerScoresDF = helpers.getWeekPlayerScores(leagueID, year, swid_cookie, s2_cookie, viewWeek)
-
-    # JOIN
-    adjustedScores = helpers.mergeScores(teamsDF, scoreboardDF, multiplierDF, playerScoresDF)
-    scoreboardDict = helpers.scoresToDict(adjustedScores, int(teamsDF.shape[0]/2))
-
-    return render_template('scoreboard.html',
-                            input1='Week 3',
-                            scoreboardDict=scoreboardDict,
-                            time=datetime.datetime.now())
-@app.route('/Week4')
-def week4_page():
-
-    # Python code would go here
-
-      return render_template('scoreboard.html',
-                            input1='Week 4',
-                            time=datetime.datetime.now())
-
-@app.route('/Week5')
-def week5_page():
-
-    # Python code would go here
-
-      return render_template('scoreboard.html',
-                            input1='Week 5',
-                            time=datetime.datetime.now())
-
-@app.route('/Week6')
-def week6_page():
-
-    # Python code would go here
-
-      return render_template('scoreboard.html',
-                            input1='Week 6',
-                            time=datetime.datetime.now())
-@app.route('/Week7')
-def week7_page():
-
-    # Python code would go here
-
-      return render_template('scoreboard.html',
-                            input1='Week 7',
-                            time=datetime.datetime.now())
-@app.route('/Week8')
-def week8_page():
-
-    # Python code would go here
-    viewWeek = 8
-
-    # GET SHEETS INPUT
-    sheetsDF = helpers.getSheetsData(SAMPLE_SPREADSHEET_ID, SAMPLE_RANGE_NAME)
-    multiplierPivot, unstacked_multiplierDF = helpers.getMultipliers(sheetsDF, multiplierList)
-    multiplierDF = sheetsDF.merge(unstacked_multiplierDF, left_on=['Team', 'Week'], right_on=['Team', 'Week'], how='left')
-
-    # GET TEAM SCORES FOR WEEK
-    scoreboardDF = helpers.getWeekScoreboard(leagueID, year, swid_cookie, s2_cookie, viewWeek)
-    scoreboardDF = scoreboardDF.merge(teamsDF, left_on='teamID', right_index=True, how='left')
-    scoreboardDF = scoreboardDF.rename(columns={'FullTeamName':'Team'})
-
-    # GET PLAYER SCORES FOR WEEK
-    playerScoresDF = helpers.getWeekPlayerScores(leagueID, year, swid_cookie, s2_cookie, viewWeek)
-
-    # JOIN
-    adjustedScores = helpers.mergeScores(teamsDF, scoreboardDF, multiplierDF, playerScoresDF)
-    scoreboardDict = helpers.scoresToDict(adjustedScores, int(teamsDF.shape[0]/2))
-
-    return render_template('scoreboard.html',
-                            input1='Week 8',
-                            scoreboardDict=scoreboardDict,
-                            time=datetime.datetime.now())
-
-@app.route('/Week9')
-def week9_page():
-
-    # Python code would go here
-
-      return render_template('scoreboard.html',
-                            input1='Week 9',
-                            time=datetime.datetime.now())
-@app.route('/Week10')
-def week10_page():
-
-    # Python code would go here
-
-      return render_template('scoreboard.html',
-                            input1='Week 10',
-                            time=datetime.datetime.now())
-@app.route('/Week11')
-def week11_page():
-
-    # Python code would go here
-
-      return render_template('scoreboard.html',
-                            input1='Week 11',
-                            time=datetime.datetime.now())
-
-@app.route('/Week12')
-def week12_page():
-
-    # Python code would go here
-
-      return render_template('scoreboard.html',
-                            input1='Week 12',
-                            time=datetime.datetime.now())
-@app.route('/Week13')
-def week13_page():
-
-    # Python code would go here
-
-      return render_template('scoreboard.html',
-                            input1='Week 13',
-                            time=datetime.datetime.now())
-
-@app.route('/Week14')
-def week14_page():
-
-    # Python code would go here
-
-      return render_template('scoreboard.html',
-                            input1='Week 14',
-                            time=datetime.datetime.now())
-
-@app.route('/Week15')
-def week15_page():
-
-    # Python code would go here
-
-      return render_template('scoreboard.html',
-                            input1='Week 15',
-                            time=datetime.datetime.now())
-@app.route('/Week16')
-def week16_page():
-
-    # Python code would go here
-
-      return render_template('scoreboard.html',
-                            input1='Week 16',
-                            time=datetime.datetime.now())
-@app.route('/Week17')
-def week17_page():
-
-    # Python code would go here
-
-      return render_template('scoreboard.html',
-                            input1='Week 17',
                             time=datetime.datetime.now())
 
 @app.route('/MultiplierResults')
 def multiplier_page():
-
-    # Python code would go here
 
     # ToDo - Treatment to not reval multiplier if gametime has not yet passed
 
@@ -289,7 +105,7 @@ def multiplier_page():
     # Randomly select multipliers
     multiplierPivot, unstacked_multiplierDF = helpers.getMultipliers(sheetsDF, multiplierList)
 
-    for i in range(1,17+1):
+    for i in range(1,17+1): # Hardcoded number of matchup weeks
         try:
             multiplierPivot[str(i)] = multiplierPivot[str(i)].apply(lambda x: str(x))
         except:
