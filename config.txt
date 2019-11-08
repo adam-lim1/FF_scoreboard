@@ -2,5 +2,11 @@
 multiplierList = -1, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1, 1.1, 1.2, 1.3, 1.4, 1.5, 3
 
 [Sheets Parameters]
-SAMPLE_SPREADSHEET_ID = 1tmPxpObpaKlu5x4o-uNH19lAAMKFHUTYaYtUuYX_Dec
-SAMPLE_RANGE_NAME = Sheet1!A:E
+SAMPLE_SPREADSHEET_ID = 1QLMN-n7g-xPiMzyE5gOursOlXEpRvuHxnAIkX-5XY8E
+SAMPLE_RANGE_NAME = Form Responses 1!A:F
+
+[ESPN Parameters]
+leagueID = 758108
+year = 2019
+swid_cookie = 73BC2CC3-ACB7-4F5C-B29A-263ED77F6718
+s2_cookie = AEC7ZIkwAaOY6lcDNaV2WiLBRO1oa%2FbycpecaaFmxEhS%2Fdmxnxt7dlaHvCYSLuBXfN1SgO%2F3WX2SQWmeQzBGhj4c5tpNOWaYKfiBv4h4HzT9UGYe72ASsRPbd3GOlRlMeLPjBm20psN8pzxEadVjGd%2F35TshwL7kKnl7VjoZ1axWmuOSjsyGNnX%2Bvq0maO1M5XuWm0UlHtv8EmIClzbGZ02zw5JoMwkQbOFPgKlAtCNnpn7MKYFwvJ6qVLNkS64%2Bl1rxwmhNFUPIqTfSwJRyg%2FPJ

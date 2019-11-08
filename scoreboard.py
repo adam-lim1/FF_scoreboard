@@ -105,14 +105,60 @@ def multiplier_page():
     # Randomly select multipliers
     multiplierPivot, unstacked_multiplierDF = helpers.getMultipliers(sheetsDF, multiplierList)
 
-    for i in range(1,17+1): # Hardcoded number of matchup weeks
-        try:
-            multiplierPivot[str(i)] = multiplierPivot[str(i)].apply(lambda x: str(x))
-        except:
-            multiplierPivot[str(i)] = ''
 
-    multiplierDict = multiplierPivot.reset_index().rename(columns={'index':'Team'}).to_dict(orient='index')
+    ################ TO DO #####################
+    # REPLACE THIS WITH GOOGLE SHEETS MUTIPLIER WRITE
+    ################ TO DO #####################
+    multiplierPivot = multiplierPivot.reset_index().rename(columns={'index':'Team'})
 
-    return render_template('multipliers.html',
-                            multiplierDict=multiplierDict,
+    currentWeek = helpers.getCurrentWeek(leagueID, year, swid_cookie, s2_cookie)
+    multiplierPivot[currentWeek] = ' '
+
+    ###### WRITE TO GOOGLE SHEETS INFO - ABSTRACT THIS ####
+    range_name = 'Multipliers!A:L'
+    value_input_option = 'RAW'
+
+    if os.path.exists('token.pickle'):
+        with open('token.pickle', 'rb') as token:
+            creds = pickle.load(token)
+
+    service = build('sheets', 'v4', credentials=creds)
+    sheet = service.spreadsheets()
+
+    values = [
+    [str(x) for x in list(multiplierPivot.columns)],
+    [float(x) if type(x) != str else x for x in list(multiplierPivot.iloc[0])],
+    [float(x) if type(x) != str else x for x in list(multiplierPivot.iloc[1])],
+    [float(x) if type(x) != str else x for x in list(multiplierPivot.iloc[2])],
+    [float(x) if type(x) != str else x for x in list(multiplierPivot.iloc[3])],
+    [float(x) if type(x) != str else x for x in list(multiplierPivot.iloc[4])],
+    [float(x) if type(x) != str else x for x in list(multiplierPivot.iloc[5])],
+    [float(x) if type(x) != str else x for x in list(multiplierPivot.iloc[6])],
+    [float(x) if type(x) != str else x for x in list(multiplierPivot.iloc[7])],
+    [float(x) if type(x) != str else x for x in list(multiplierPivot.iloc[8])],
+    [float(x) if type(x) != str else x for x in list(multiplierPivot.iloc[9])],
+    [float(x) if type(x) != str else x for x in list(multiplierPivot.iloc[10])],
+    [float(x) if type(x) != str else x for x in list(multiplierPivot.iloc[11])]
+    ]
+    body = {
+        'values': values
+    }
+
+    service.spreadsheets().values().update(spreadsheetId=SAMPLE_SPREADSHEET_ID,
+                                       range=range_name,
+                                       valueInputOption=value_input_option,
+                                       body=body).execute()
+
+
+    ##########################
+
+    # for i in range(1,17+1): # Hardcoded number of matchup weeks
+    #     try:
+    #         multiplierPivot[str(i)] = multiplierPivot[str(i)].apply(lambda x: str(x))
+    #     except:
+    #         multiplierPivot[str(i)] = ''
+    #
+    # multiplierDict = multiplierPivot.reset_index().rename(columns={'index':'Team'}).to_dict(orient='index')
+
+    return render_template('multipliers_GS.html',
                             time=datetime.datetime.now())
