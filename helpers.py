@@ -11,6 +11,7 @@ from googleapiclient.discovery import build
 from google_auth_oauthlib.flow import InstalledAppFlow
 from google.auth.transport.requests import Request
 
+############## ToDo - Write to Google Sheets Class ##############
 def getSheetsData(SAMPLE_SPREADSHEET_ID, SAMPLE_RANGE_NAME, fillNullValue=np.nan):
     '''
     Wrapper function for reading Google Sheets data into Pandas DataFrame
@@ -21,8 +22,8 @@ def getSheetsData(SAMPLE_SPREADSHEET_ID, SAMPLE_RANGE_NAME, fillNullValue=np.nan
     '''
 
     #### CALL SHEET API
-    if os.path.exists('token.pickle'):
-            with open('token.pickle', 'rb') as token:
+    if os.path.exists('credentials/token.pickle'):
+            with open('credentials/token.pickle', 'rb') as token:
                 creds = pickle.load(token)
 
     service = build('sheets', 'v4', credentials=creds)
@@ -74,6 +75,24 @@ def getSheetsData(SAMPLE_SPREADSHEET_ID, SAMPLE_RANGE_NAME, fillNullValue=np.nan
 
     return outputDF
 
+def writeSheetData(SAMPLE_SPREADSHEET_ID, SAMPLE_RANGE_NAME, values):
+
+    body = {'values': values}
+
+    if os.path.exists('credentials/token.pickle'):
+        with open('credentials/token.pickle', 'rb') as token:
+            creds = pickle.load(token)
+
+    service = build('sheets', 'v4', credentials=creds)
+    sheet = service.spreadsheets()
+
+    service.spreadsheets().values().update(spreadsheetId=SAMPLE_SPREADSHEET_ID,
+                                       range=SAMPLE_RANGE_NAME,
+                                       valueInputOption='RAW',
+                                       body=body).execute()
+
+    return 1
+
 def getMultipliers(sheetsDF, origMultiplierList, fillNullValue=1234):
     '''
 
@@ -112,6 +131,8 @@ def getMultipliers(sheetsDF, origMultiplierList, fillNullValue=1234):
         #unstacked_multiplierDF['Select Week'] = unstacked_multiplierDF['Select Week'].apply(lambda x: x.split(' ')[1])
     return multiplierDF, unstacked_multiplierDF
 
+
+############## ToDo - Write to ESPN Class ##############
 def getTeamsKey(leagueID, year, swid_cookie, s2_cookie):
     '''
     Get list of Teams and Team ID from ESPN Fantasy Football API
@@ -307,7 +328,7 @@ def mergeScores(teamsDF, scoreboardDF, multiplierDF, playerScoresDF):
     df = df.merge(playerScoresDF, left_on=['Week', 'teamID', 'Multiplayer'], right_on=["Week", 'Team ID', 'Player'], how='left')
     df = df[['Week', 'matchupID','home_away', 'Points', 'FullTeamName', 'Timestamp', 'Multiplayer', 'Multiplier', 'Actual']]
 
-    df['Multiplier'] = np.where(df['Actual'].isnull()==True, None, df['Multiplier'])
+    df['Multiplier'] = np.where(df['Actual'].isnull()==True, None, df['Multiplier']) # Adjust non-locked multipliers here
     df['Adjustment'] = -1*(1-df['Multiplier'])*df['Actual']
     df['AdjustedScore'] = df['Adjustment'] + df['Points']
     df['AdjustedScore'] = np.where(df['AdjustedScore'].isnull()==True, df['Points'], df['AdjustedScore'])

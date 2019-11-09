@@ -24,7 +24,7 @@ config.read('config.txt')
 
 # Google Sheets Parameters
 SAMPLE_SPREADSHEET_ID = config.get('Sheets Parameters', 'SAMPLE_SPREADSHEET_ID')
-SAMPLE_RANGE_NAME = config.get('Sheets Parameters', 'SAMPLE_RANGE_NAME')
+INPUT_DATA_RANGE = config.get('Sheets Parameters', 'INPUT_DATA_RANGE')
 
 # League Parameters
 multiplierList = [float(x) for x in config.get('League Parameters', 'multiplierList').split(', ')]
@@ -43,7 +43,7 @@ initialTime=datetime.datetime.now()
 
 ##  ******************* PROCESS INPUT FROM GOOGLE SHEETS *******************
 # Get data from sheets
-sheetsDF = helpers.getSheetsData(SAMPLE_SPREADSHEET_ID, SAMPLE_RANGE_NAME)
+sheetsDF = helpers.getSheetsData(SAMPLE_SPREADSHEET_ID, INPUT_DATA_RANGE) # Form Responses 1!A:F
 
 # Randomly select multipliers
 multiplierPivot, unstacked_multiplierDF = helpers.getMultipliers(sheetsDF, multiplierList)
@@ -73,7 +73,7 @@ def weekGeneric_page(viewWeek):
     viewWeek = int(viewWeek)
 
     # GET SHEETS INPUT
-    sheetsDF = helpers.getSheetsData(SAMPLE_SPREADSHEET_ID, SAMPLE_RANGE_NAME)
+    sheetsDF = helpers.getSheetsData(SAMPLE_SPREADSHEET_ID, INPUT_DATA_RANGE)
     multiplierPivot, unstacked_multiplierDF = helpers.getMultipliers(sheetsDF, multiplierList)
     multiplierDF = sheetsDF.merge(unstacked_multiplierDF, left_on=['Team', 'Week'], right_on=['Team', 'Week'], how='left')
 
@@ -100,65 +100,21 @@ def multiplier_page():
     # ToDo - Treatment to not reval multiplier if gametime has not yet passed
 
     # Get data from sheets
-    sheetsDF = helpers.getSheetsData(SAMPLE_SPREADSHEET_ID, SAMPLE_RANGE_NAME)
+    sheetsDF = helpers.getSheetsData(SAMPLE_SPREADSHEET_ID, INPUT_DATA_RANGE)
 
     # Randomly select multipliers
     multiplierPivot, unstacked_multiplierDF = helpers.getMultipliers(sheetsDF, multiplierList)
-
-
-    ################ TO DO #####################
-    # REPLACE THIS WITH GOOGLE SHEETS MUTIPLIER WRITE
-    ################ TO DO #####################
     multiplierPivot = multiplierPivot.reset_index().rename(columns={'index':'Team'})
 
+    # Hide multipliers for current week
     currentWeek = helpers.getCurrentWeek(leagueID, year, swid_cookie, s2_cookie)
     multiplierPivot[currentWeek] = ' '
 
-    ###### WRITE TO GOOGLE SHEETS INFO - ABSTRACT THIS ####
-    range_name = 'Multipliers!A:L'
-    value_input_option = 'RAW'
+    # Format values as List of Lists to be accepted by Google Sheets API
+    values = multiplierPivot.values.tolist()
+    values.insert(0, [str(x) for x in list(multiplierPivot.columns)])
 
-    if os.path.exists('token.pickle'):
-        with open('token.pickle', 'rb') as token:
-            creds = pickle.load(token)
-
-    service = build('sheets', 'v4', credentials=creds)
-    sheet = service.spreadsheets()
-
-    values = [
-    [str(x) for x in list(multiplierPivot.columns)],
-    [float(x) if type(x) != str else x for x in list(multiplierPivot.iloc[0])],
-    [float(x) if type(x) != str else x for x in list(multiplierPivot.iloc[1])],
-    [float(x) if type(x) != str else x for x in list(multiplierPivot.iloc[2])],
-    [float(x) if type(x) != str else x for x in list(multiplierPivot.iloc[3])],
-    [float(x) if type(x) != str else x for x in list(multiplierPivot.iloc[4])],
-    [float(x) if type(x) != str else x for x in list(multiplierPivot.iloc[5])],
-    [float(x) if type(x) != str else x for x in list(multiplierPivot.iloc[6])],
-    [float(x) if type(x) != str else x for x in list(multiplierPivot.iloc[7])],
-    [float(x) if type(x) != str else x for x in list(multiplierPivot.iloc[8])],
-    [float(x) if type(x) != str else x for x in list(multiplierPivot.iloc[9])],
-    [float(x) if type(x) != str else x for x in list(multiplierPivot.iloc[10])],
-    [float(x) if type(x) != str else x for x in list(multiplierPivot.iloc[11])]
-    ]
-    body = {
-        'values': values
-    }
-
-    service.spreadsheets().values().update(spreadsheetId=SAMPLE_SPREADSHEET_ID,
-                                       range=range_name,
-                                       valueInputOption=value_input_option,
-                                       body=body).execute()
-
-
-    ##########################
-
-    # for i in range(1,17+1): # Hardcoded number of matchup weeks
-    #     try:
-    #         multiplierPivot[str(i)] = multiplierPivot[str(i)].apply(lambda x: str(x))
-    #     except:
-    #         multiplierPivot[str(i)] = ''
-    #
-    # multiplierDict = multiplierPivot.reset_index().rename(columns={'index':'Team'}).to_dict(orient='index')
+    helpers.writeSheetData(SAMPLE_SPREADSHEET_ID, 'Multipliers!A:L', values)
 
     return render_template('multipliers_GS.html',
                             time=datetime.datetime.now())

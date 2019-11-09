@@ -3,7 +3,7 @@ multiplierList = -1, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1, 1.1, 1.2, 1
 
 [Sheets Parameters]
 SAMPLE_SPREADSHEET_ID = 1QLMN-n7g-xPiMzyE5gOursOlXEpRvuHxnAIkX-5XY8E
-SAMPLE_RANGE_NAME = Form Responses 1!A:F
+INPUT_DATA_RANGE = Form Responses 1!A:F
 
 [ESPN Parameters]
 leagueID = 758108
