@@ -58,6 +58,10 @@ teamsDF = helpers.getTeamsKey(leagueID, year, swid_cookie, s2_cookie)
 ##  ******************* RENDER PAGES WITH FLASK *******************
 ################################################################################
 
+@app.route('/')
+def home():
+    return redirect('/scoreboard')
+    
 @app.route('/scoreboard')
 def scoreboard_page():
     ## Find current week and redirect to there
