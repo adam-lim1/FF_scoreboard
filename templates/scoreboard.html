@@ -100,6 +100,8 @@ Last Updated: {{ time }}
 <br></br>
 <br></br>
 
+<!-- <h2 font-size: 320px><img src="/static/FFL.JPG" align="middle">   Fun Fantasy League </h2> -->
+
 
 <!-- ################## SELECT WEEK BUTTON ################## -->
 <!-- ToDo - Incorporate this into nav bar -->
@@ -212,8 +214,10 @@ body {
   }
 </style>
 
+<!-- Body of Scoreboards -->
 
-<b> Matchup 1 </b>
+{% for n in scoreboardDict.keys() %}
+<b> Matchup {{ n }} </b>
 <table>
   <tr>
     <th bgcolor="#4CAF50"><font color="white"> Team </font></th>
@@ -223,148 +227,19 @@ body {
     <th bgcolor="#4CAF50"><font color="white"> Overall Score (Adjusted) </font></th>
   </tr>
   <tr>
-    <td>{{ scoreboardDict[1]['Home']['Team'] }}</td>
-    <td>{{ scoreboardDict[1]['Home']['Multiplayer'] }}</td>
-    <td>{{ scoreboardDict[1]['Home']['Multiplier'] }}</td>
-    <td>{{ scoreboardDict[1]['Home']['Score Adjustment'] }}</td>
-    <td>{{ scoreboardDict[1]['Home']['Adjusted Score'] }}</td>
+    <td>{{ scoreboardDict[n]['Home']['Team'] }}</td>
+    <td>{{ scoreboardDict[n]['Home']['Multiplayer'] }}</td>
+    <td>{{ scoreboardDict[n]['Home']['Multiplier'] }}</td>
+    <td>{{ scoreboardDict[n]['Home']['Score Adjustment'] }}</td>
+    <td>{{ scoreboardDict[n]['Home']['Adjusted Score'] }}</td>
   </tr>
   <tr>
-    <td>{{ scoreboardDict[1]['Away']['Team'] }}</td>
-    <td>{{ scoreboardDict[1]['Away']['Multiplayer'] }}</td>
-    <td>{{ scoreboardDict[1]['Away']['Multiplier'] }}</td>
-    <td>{{ scoreboardDict[1]['Away']['Score Adjustment'] }}</td>
-    <td>{{ scoreboardDict[1]['Away']['Adjusted Score'] }}</td>
+    <td>{{ scoreboardDict[n]['Away']['Team'] }}</td>
+    <td>{{ scoreboardDict[n]['Away']['Multiplayer'] }}</td>
+    <td>{{ scoreboardDict[n]['Away']['Multiplier'] }}</td>
+    <td>{{ scoreboardDict[n]['Away']['Score Adjustment'] }}</td>
+    <td>{{ scoreboardDict[n]['Away']['Adjusted Score'] }}</td>
   </tr>
 </table>
 <br></br>
-
-<b> Matchup 2 </b>
-<table>
-  <tr>
-    <th bgcolor="#4CAF50"><font color="white"> Team </font></th>
-    <th bgcolor="#4CAF50"><font color="white"> Multiplayer </font></th>
-    <th bgcolor="#4CAF50"><font color="white"> Multiplier </font></th>
-    <th bgcolor="#4CAF50"><font color="white"> Score Adjustment </font></th>
-    <th bgcolor="#4CAF50"><font color="white"> Overall Score (Adjusted) </font></th>
-  </tr>
-  <tr>
-    <td>{{ scoreboardDict[2]['Home']['Team'] }}</td>
-    <td>{{ scoreboardDict[2]['Home']['Multiplayer'] }}</td>
-    <td>{{ scoreboardDict[2]['Home']['Multiplier'] }}</td>
-    <td>{{ scoreboardDict[2]['Home']['Score Adjustment'] }}</td>
-    <td>{{ scoreboardDict[2]['Home']['Adjusted Score'] }}</td>
-  </tr>
-  <tr>
-    <td>{{ scoreboardDict[2]['Away']['Team'] }}</td>
-    <td>{{ scoreboardDict[2]['Away']['Multiplayer'] }}</td>
-    <td>{{ scoreboardDict[2]['Away']['Multiplier'] }}</td>
-    <td>{{ scoreboardDict[2]['Away']['Score Adjustment'] }}</td>
-    <td>{{ scoreboardDict[2]['Away']['Adjusted Score'] }}</td>
-  </tr>
-</table>
-<br></br>
-
-<b> Matchup 3 </b>
-<table>
-  <tr>
-    <th bgcolor="#4CAF50"><font color="white"> Team </font></th>
-    <th bgcolor="#4CAF50"><font color="white"> Multiplayer </font></th>
-    <th bgcolor="#4CAF50"><font color="white"> Multiplier </font></th>
-    <th bgcolor="#4CAF50"><font color="white"> Score Adjustment </font></th>
-    <th bgcolor="#4CAF50"><font color="white"> Overall Score (Adjusted) </font></th>
-  </tr>
-  <tr>
-    <td>{{ scoreboardDict[3]['Home']['Team'] }}</td>
-    <td>{{ scoreboardDict[3]['Home']['Multiplayer'] }}</td>
-    <td>{{ scoreboardDict[3]['Home']['Multiplier'] }}</td>
-    <td>{{ scoreboardDict[3]['Home']['Score Adjustment'] }}</td>
-    <td>{{ scoreboardDict[3]['Home']['Adjusted Score'] }}</td>
-  </tr>
-  <tr>
-    <td>{{ scoreboardDict[3]['Away']['Team'] }}</td>
-    <td>{{ scoreboardDict[3]['Away']['Multiplayer'] }}</td>
-    <td>{{ scoreboardDict[3]['Away']['Multiplier'] }}</td>
-    <td>{{ scoreboardDict[3]['Away']['Score Adjustment'] }}</td>
-    <td>{{ scoreboardDict[3]['Away']['Adjusted Score'] }}</td>
-  </tr>
-</table>
-<br></br>
-
-<b> Matchup 4 </b>
-<table>
-  <tr>
-    <th bgcolor="#4CAF50"><font color="white"> Team </font></th>
-    <th bgcolor="#4CAF50"><font color="white"> Multiplayer </font></th>
-    <th bgcolor="#4CAF50"><font color="white"> Multiplier </font></th>
-    <th bgcolor="#4CAF50"><font color="white"> Score Adjustment </font></th>
-    <th bgcolor="#4CAF50"><font color="white"> Overall Score (Adjusted) </font></th>
-  </tr>
-  <tr>
-    <td>{{ scoreboardDict[4]['Home']['Team'] }}</td>
-    <td>{{ scoreboardDict[4]['Home']['Multiplayer'] }}</td>
-    <td>{{ scoreboardDict[4]['Home']['Multiplier'] }}</td>
-    <td>{{ scoreboardDict[4]['Home']['Score Adjustment'] }}</td>
-    <td>{{ scoreboardDict[4]['Home']['Adjusted Score'] }}</td>
-  </tr>
-  <tr>
-    <td>{{ scoreboardDict[4]['Away']['Team'] }}</td>
-    <td>{{ scoreboardDict[4]['Away']['Multiplayer'] }}</td>
-    <td>{{ scoreboardDict[4]['Away']['Multiplier'] }}</td>
-    <td>{{ scoreboardDict[4]['Away']['Score Adjustment'] }}</td>
-    <td>{{ scoreboardDict[4]['Away']['Adjusted Score'] }}</td>
-  </tr>
-</table>
-<br></br>
-
-<b> Matchup 5 </b>
-<table>
-  <tr>
-    <th bgcolor="#4CAF50"><font color="white"> Team </font></th>
-    <th bgcolor="#4CAF50"><font color="white"> Multiplayer </font></th>
-    <th bgcolor="#4CAF50"><font color="white"> Multiplier </font></th>
-    <th bgcolor="#4CAF50"><font color="white"> Score Adjustment </font></th>
-    <th bgcolor="#4CAF50"><font color="white"> Overall Score (Adjusted) </font></th>
-  </tr>
-  <tr>
-    <td>{{ scoreboardDict[5]['Home']['Team'] }}</td>
-    <td>{{ scoreboardDict[5]['Home']['Multiplayer'] }}</td>
-    <td>{{ scoreboardDict[5]['Home']['Multiplier'] }}</td>
-    <td>{{ scoreboardDict[5]['Home']['Score Adjustment'] }}</td>
-    <td>{{ scoreboardDict[5]['Home']['Adjusted Score'] }}</td>
-  </tr>
-  <tr>
-    <td>{{ scoreboardDict[5]['Away']['Team'] }}</td>
-    <td>{{ scoreboardDict[5]['Away']['Multiplayer'] }}</td>
-    <td>{{ scoreboardDict[5]['Away']['Multiplier'] }}</td>
-    <td>{{ scoreboardDict[5]['Away']['Score Adjustment'] }}</td>
-    <td>{{ scoreboardDict[5]['Away']['Adjusted Score'] }}</td>
-  </tr>
-</table>
-<br></br>
-
-<b> Matchup 6 </b>
-<table>
-  <tr>
-    <th bgcolor="#4CAF50"><font color="white"> Team </font></th>
-    <th bgcolor="#4CAF50"><font color="white"> Multiplayer </font></th>
-    <th bgcolor="#4CAF50"><font color="white"> Multiplier </font></th>
-    <th bgcolor="#4CAF50"><font color="white"> Score Adjustment </font></th>
-    <th bgcolor="#4CAF50"><font color="white"> Overall Score (Adjusted) </font></th>
-  </tr>
-  <tr>
-    <td>{{ scoreboardDict[6]['Home']['Team'] }}</td>
-    <td>{{ scoreboardDict[6]['Home']['Multiplayer'] }}</td>
-    <td>{{ scoreboardDict[6]['Home']['Multiplier'] }}</td>
-    <td>{{ scoreboardDict[6]['Home']['Score Adjustment'] }}</td>
-    <td>{{ scoreboardDict[6]['Home']['Adjusted Score'] }}</td>
-  </tr>
-  <tr>
-    <td>{{ scoreboardDict[6]['Away']['Team'] }}</td>
-    <td>{{ scoreboardDict[6]['Away']['Multiplayer'] }}</td>
-    <td>{{ scoreboardDict[6]['Away']['Multiplier'] }}</td>
-    <td>{{ scoreboardDict[6]['Away']['Score Adjustment'] }}</td>
-    <td>{{ scoreboardDict[6]['Away']['Adjusted Score'] }}</td>
-  </tr>
-</table>
-<br></br>
+{% endfor %}
