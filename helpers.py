@@ -216,6 +216,13 @@ def getWeekScoreboard(leagueID, year, swid_cookie, s2_cookie, viewWeek):
     # GET LIST OF GAMES FOR VIEW WEEK
     response_week = [game for game in response['schedule'] if game['matchupPeriodId'] == viewWeek]
 
+    ## Fill Score data for BYE weeks
+    for x in range(0,len(response_week)):
+        if 'away' not in response_week[x].keys():
+            response_week[x]['away'] = {'teamId': 'BYE', 'totalPoints': 0, 'rosterForCurrentScoringPeriod':{'appliedStatTotal': 0}}
+        if 'home' not in response_week[x].keys():
+            response_week[x]['home'] = {'teamId': 'BYE', 'totalPoints': 0, 'rosterForCurrentScoringPeriod':{'appliedStatTotal': 0}}
+    
     gameList = []
 
     for game in response_week:

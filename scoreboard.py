@@ -61,7 +61,7 @@ teamsDF = helpers.getTeamsKey(leagueID, year, swid_cookie, s2_cookie)
 @app.route('/')
 def home():
     return redirect('/scoreboard')
-    
+
 @app.route('/scoreboard')
 def scoreboard_page():
     ## Find current week and redirect to there
@@ -93,6 +93,7 @@ def weekGeneric_page(viewWeek):
     adjustedScores = helpers.mergeScores(teamsDF, scoreboardDF, multiplierDF, playerScoresDF)
     scoreboardDict = helpers.scoresToDict(adjustedScores, int(teamsDF.shape[0]/2))
 
+    print(scoreboardDict.keys())
     return render_template('scoreboard.html',
                             input1='Week {}'.format(viewWeek),
                             scoreboardDict=scoreboardDict,
