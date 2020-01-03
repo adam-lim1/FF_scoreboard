@@ -162,6 +162,10 @@ def getTeamsKey(leagueID, year, swid_cookie, s2_cookie):
     teams['FullTeamName'] = teams['location'] + " " + teams['nickname'] + " (" + teams['abbrev'] + ")"
     teamsKey = teams[['id', 'FullTeamName']]
     teamsKey = teamsKey.set_index('id')
+
+    ## Error handling for bye's
+    teamsKey.loc[-999] = 'BYE'
+
     return teamsKey
 
 def getCurrentWeek(leagueID, year, swid_cookie, s2_cookie):
@@ -219,9 +223,9 @@ def getWeekScoreboard(leagueID, year, swid_cookie, s2_cookie, viewWeek):
     ## Fill Score data for BYE weeks
     for x in range(0,len(response_week)):
         if 'away' not in response_week[x].keys():
-            response_week[x]['away'] = {'teamId': 'BYE', 'totalPoints': 0, 'rosterForCurrentScoringPeriod':{'appliedStatTotal': 0}}
+            response_week[x]['away'] = {'teamId': -999, 'totalPoints': 0, 'rosterForCurrentScoringPeriod':{'appliedStatTotal': 0}}
         if 'home' not in response_week[x].keys():
-            response_week[x]['home'] = {'teamId': 'BYE', 'totalPoints': 0, 'rosterForCurrentScoringPeriod':{'appliedStatTotal': 0}}
+            response_week[x]['home'] = {'teamId': -999, 'totalPoints': 0, 'rosterForCurrentScoringPeriod':{'appliedStatTotal': 0}}
 
     gameList = []
 
