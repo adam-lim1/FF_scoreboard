@@ -222,7 +222,7 @@ def getWeekScoreboard(leagueID, year, swid_cookie, s2_cookie, viewWeek):
             response_week[x]['away'] = {'teamId': 'BYE', 'totalPoints': 0, 'rosterForCurrentScoringPeriod':{'appliedStatTotal': 0}}
         if 'home' not in response_week[x].keys():
             response_week[x]['home'] = {'teamId': 'BYE', 'totalPoints': 0, 'rosterForCurrentScoringPeriod':{'appliedStatTotal': 0}}
-    
+
     gameList = []
 
     for game in response_week:
@@ -237,8 +237,12 @@ def getWeekScoreboard(leagueID, year, swid_cookie, s2_cookie, viewWeek):
             home_pts = game['home']['totalPoints']
             away_pts = game['away']['totalPoints']
         elif week == matchupPeriodId: # Current Week
-            home_pts = game['home']['rosterForCurrentScoringPeriod']['appliedStatTotal']
-            away_pts = game['away']['rosterForCurrentScoringPeriod']['appliedStatTotal']
+            try:
+                home_pts = game['home']['rosterForCurrentScoringPeriod']['appliedStatTotal']
+                away_pts = game['away']['rosterForCurrentScoringPeriod']['appliedStatTotal']
+            except KeyError: # Support API after season is over (when scores finalized but matchup week not iterated)
+                home_pts = game['home']['totalPoints']
+                away_pts = game['away']['totalPoints']
         elif week > matchupPeriodId: # Future Week
             home_pts = 0
             away_pts = 0
