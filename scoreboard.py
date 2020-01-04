@@ -112,6 +112,7 @@ def multiplier_page():
     multiplierPivot = multiplierPivot.reset_index().rename(columns={'index':'Team'})
 
     # Hide multipliers for current week
+    # ToDo - Need handling to display week 16 multipliers at end of season
     currentWeek = helpers.getCurrentWeek(leagueID, year, swid_cookie, s2_cookie)
     multiplierPivot[currentWeek] = ' '
 
@@ -119,7 +120,7 @@ def multiplier_page():
     values = multiplierPivot.values.tolist()
     values.insert(0, [str(x) for x in list(multiplierPivot.columns)])
 
-    helpers.writeSheetData(SAMPLE_SPREADSHEET_ID, 'Multipliers!A:L', values)
+    helpers.writeSheetData(SAMPLE_SPREADSHEET_ID, 'Multipliers!A:Q', values)
 
     return render_template('multipliers_GS.html',
                             time=datetime.datetime.now())
