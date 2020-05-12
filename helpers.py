@@ -11,18 +11,19 @@ from googleapiclient.discovery import build
 from google_auth_oauthlib.flow import InstalledAppFlow
 from google.auth.transport.requests import Request
 
+############## ToDo - Write to Google Sheets Class ##############
 def getSheetsData(SAMPLE_SPREADSHEET_ID, SAMPLE_RANGE_NAME, fillNullValue=np.nan):
     '''
     Wrapper function for reading Google Sheets data into Pandas DataFrame
-    :param SAMPLE_SPREADSHEET_ID:
-    :param SAMPLE_RANGE_NAME:
-    :param fillNullValue:
-    :return:
+    :param SAMPLE_SPREADSHEET_ID (str): Google Sheet ID. For additional documentation see: https://developers.google.com/sheets/api/quickstart/python
+    :param SAMPLE_RANGE_NAME (str): A1 Notation cell range to read from Google Sheet. See: https://developers.google.com/sheets/api/quickstart/python
+    :param fillNullValue: Value to fill null spreadsheet cells with. (Default = np.nan)
+    :return (DataFrame): Pandas DataFrame representing data from Google Sheet
     '''
 
     #### CALL SHEET API
-    if os.path.exists('token.pickle'):
-            with open('token.pickle', 'rb') as token:
+    if os.path.exists('credentials/token.pickle'):
+            with open('credentials/token.pickle', 'rb') as token:
                 creds = pickle.load(token)
 
     service = build('sheets', 'v4', credentials=creds)
@@ -74,13 +75,37 @@ def getSheetsData(SAMPLE_SPREADSHEET_ID, SAMPLE_RANGE_NAME, fillNullValue=np.nan
 
     return outputDF
 
-def getMultipliers(sheetsDF, origMultiplierList, fillNullValue=1234):
+def writeSheetData(SAMPLE_SPREADSHEET_ID, SAMPLE_RANGE_NAME, values):
+    '''
+    [ TO BE COMPLETED ]
+    :param SAMPLE_SPREADSHEET_ID (str): Google Sheet ID. For additional documentation see: https://developers.google.com/sheets/api/quickstart/python
+    :param SAMPLE_RANGE_NAME (str): A1 Notation cell range to read from Google Sheet. See: https://developers.google.com/sheets/api/quickstart/python
+    :param values: [ TO BE COMPLETED ]
     '''
 
-    :param sheetsDF:
-    :param origMultiplierList:
-    :param fillNullValue:
-    :return:
+    body = {'values': values}
+
+    if os.path.exists('credentials/token.pickle'):
+        with open('credentials/token.pickle', 'rb') as token:
+            creds = pickle.load(token)
+
+    service = build('sheets', 'v4', credentials=creds)
+    sheet = service.spreadsheets()
+
+    service.spreadsheets().values().update(spreadsheetId=SAMPLE_SPREADSHEET_ID,
+                                       range=SAMPLE_RANGE_NAME,
+                                       valueInputOption='RAW',
+                                       body=body).execute()
+
+    return 1
+
+def getMultipliers(sheetsDF, origMultiplierList, fillNullValue=1234):
+    '''
+    [TO BE COMPLETED]
+    :param sheetsDF (DataFrame): [TO BE COMPLETED]
+    :param origMultiplierLis (list): [TO BE COMPLETED]
+    :param fillNullValue (int): Default seed value if none provided (Default = 1234)
+    :return: [TO BE COMPLETED]
     '''
 
     # ToDo: Complete function docstring
@@ -112,14 +137,16 @@ def getMultipliers(sheetsDF, origMultiplierList, fillNullValue=1234):
         #unstacked_multiplierDF['Select Week'] = unstacked_multiplierDF['Select Week'].apply(lambda x: x.split(' ')[1])
     return multiplierDF, unstacked_multiplierDF
 
+
+############## ToDo - Write to ESPN Class ##############
 def getTeamsKey(leagueID, year, swid_cookie, s2_cookie):
     '''
-    Get list of Teams and Team ID from ESPN Fantasy Football API
-    :param leagueID:
-    :param year:
-    :param swid_cookie:
-    :param s2_cookie:
-    :return: DataFrame with Team ID as index
+    Get list of Teams and Team ID from ESPN Fantasy Football API. Create Team Name as {Location} + {Nickname} + ({Abbreviation})
+    :param leagueID (str): ESPN League ID. For further information on ESPN Parameters, see here: https://stmorse.github.io/journal/espn-fantasy-v3.html
+    :param year (str): ESPN League Year
+    :param swid_cookie (str): ESPN SWID Cookie for private leagues
+    :param s2_cookie (str): ESPN S2 Cookie for private leagues
+    :return (DataFrame): Nbr Rows = {n Teams}. Cols = [FullTeamName]
     '''
     # ToDo: Complete function docstring
 
@@ -135,17 +162,22 @@ def getTeamsKey(leagueID, year, swid_cookie, s2_cookie):
     teams['FullTeamName'] = teams['location'] + " " + teams['nickname'] + " (" + teams['abbrev'] + ")"
     teamsKey = teams[['id', 'FullTeamName']]
     teamsKey = teamsKey.set_index('id')
+
+    ## Error handling for bye's
+    teamsKey.loc[-999] = 'BYE'
+
     return teamsKey
 
 def getCurrentWeek(leagueID, year, swid_cookie, s2_cookie):
     '''
-
-    :param leagueID:
-    :param year:
-    :param swid_cookie:
-    :param s2_cookie:
-    :return:
+    Get current matchup week from ESPN Fantasy Football API.
+    :param leagueID (str): ESPN League ID. For further information on ESPN Parameters, see here: https://stmorse.github.io/journal/espn-fantasy-v3.html
+    :param year (str): ESPN League Year
+    :param swid_cookie (str): ESPN SWID Cookie for private leagues
+    :param s2_cookie (str): ESPN S2 Cookie for private leagues
+    :return (int): Current matchup week
     '''
+
     url = "https://fantasy.espn.com/apis/v3/games/ffl/seasons/{year}/segments/0/leagues/{leagueID}?view=mBoxscore".format(
     leagueID=leagueID,
     year=year)
@@ -162,16 +194,14 @@ def getCurrentWeek(leagueID, year, swid_cookie, s2_cookie):
     return matchupPeriodId
 
 def getWeekScoreboard(leagueID, year, swid_cookie, s2_cookie, viewWeek):
-    ### ToDo - is viewWeek necessary params
-
     '''
-    Get DataFrame of fantasy matchups and real-time scores by team
-    :param leagueID:
-    :param year:
-    :param swid_cookie:
-    :param s2_cookie:
-    :param viewWeek:
-    :return:
+    Get DataFrame of scores by team for a given matchup week.
+    :param leagueID (str): ESPN League ID. For further information on ESPN Parameters, see here: https://stmorse.github.io/journal/espn-fantasy-v3.html
+    :param year (str): ESPN League Year
+    :param swid_cookie (str): ESPN SWID Cookie for private leagues
+    :param s2_cookie (str): ESPN S2 Cookie for private leagues
+    :param viewWeek (int): Matchup week to pull scores for
+    :return (DataFrame): Nbr Rows = {n Teams}. Cols = [Week, matchupID, teamID, Points, home_away]
     '''
 
     url = "https://fantasy.espn.com/apis/v3/games/ffl/seasons/{year}/segments/0/leagues/{leagueID}?view=mBoxscore".format(
@@ -190,6 +220,13 @@ def getWeekScoreboard(leagueID, year, swid_cookie, s2_cookie, viewWeek):
     # GET LIST OF GAMES FOR VIEW WEEK
     response_week = [game for game in response['schedule'] if game['matchupPeriodId'] == viewWeek]
 
+    ## Fill Score data for BYE weeks
+    for x in range(0,len(response_week)):
+        if 'away' not in response_week[x].keys():
+            response_week[x]['away'] = {'teamId': -999, 'totalPoints': 0, 'rosterForCurrentScoringPeriod':{'appliedStatTotal': 0}}
+        if 'home' not in response_week[x].keys():
+            response_week[x]['home'] = {'teamId': -999, 'totalPoints': 0, 'rosterForCurrentScoringPeriod':{'appliedStatTotal': 0}}
+
     gameList = []
 
     for game in response_week:
@@ -204,8 +241,12 @@ def getWeekScoreboard(leagueID, year, swid_cookie, s2_cookie, viewWeek):
             home_pts = game['home']['totalPoints']
             away_pts = game['away']['totalPoints']
         elif week == matchupPeriodId: # Current Week
-            home_pts = game['home']['rosterForCurrentScoringPeriod']['appliedStatTotal']
-            away_pts = game['away']['rosterForCurrentScoringPeriod']['appliedStatTotal']
+            try:
+                home_pts = game['home']['rosterForCurrentScoringPeriod']['appliedStatTotal']
+                away_pts = game['away']['rosterForCurrentScoringPeriod']['appliedStatTotal']
+            except KeyError: # Support API after season is over (when scores finalized but matchup week not iterated)
+                home_pts = game['home']['totalPoints']
+                away_pts = game['away']['totalPoints']
         elif week > matchupPeriodId: # Future Week
             home_pts = 0
             away_pts = 0
@@ -231,12 +272,12 @@ def getWeekScoreboard(leagueID, year, swid_cookie, s2_cookie, viewWeek):
 def getWeekPlayerScores(leagueID, year, swid_cookie, s2_cookie, viewWeek):
     '''
     Get DataFrame of individual player scores for all rostered players
-    :param leagueID:
-    :param year:
-    :param swid_cookie:
-    :param s2_cookie:
-    :param viewWeek: Matchup week (1-17)
-    :return: DataFrame of individual player scores in week for all rostered players
+    :param leagueID (str): ESPN League ID. For further information on ESPN Parameters, see here: https://stmorse.github.io/journal/espn-fantasy-v3.html
+    :param year (str): ESPN League Year
+    :param swid_cookie (str): ESPN SWID Cookie for private leagues
+    :param s2_cookie (str): ESPN S2 Cookie for private leagues
+    :param viewWeek (int): Matchup week to pull scores for
+    :return (DataFrame): Nbr Rows = {n Teams * nbr Players / Team}. Cols = [Week, Team ID, Player, Slot, Pos, Status, Proj, Actual]
     '''
 
     ## Define dictionary of lineup slot codes to parse JSON
@@ -295,19 +336,20 @@ def getWeekPlayerScores(leagueID, year, swid_cookie, s2_cookie, viewWeek):
 
 def mergeScores(teamsDF, scoreboardDF, multiplierDF, playerScoresDF):
     '''
-
-    :param teamsDF: DataFrame of team names and ID's
-    :param scoreboardDF: DataFrame of weekly team scores
-    :param multiplierDF: DataFrame of team multipliers
-    :param playerScoresDF: DataFrame of weekly player scores
-    :return: Single DataFrame with matchups and adjusted scores
+    [TO BE COMPLETED]
+    :param teamsDF (DataFrame):  Nbr Rows = {n Teams}. Cols = [FullTeamName]
+    :param scoreboardDF (DataFrame): Nbr Rows = {n Teams}. Cols = [Week, matchupID, teamID, Points, home_away]
+    :param multiplierDF (DataFrame): Nbr Rows = {n Teams}. Cols = [ TO BE COMPLETED ]
+    :param playerScoresDF (DataFrame): Nbr Rows = {n Teams * nbr Players / Team}. Cols = [Week, Team ID, Player, Slot, Pos, Status, Proj, Actual]
+    :return (DataFrame): Nbr Rows = {n Teams}. Cols = [TO BE COMPLETED]
     '''
+
     df = scoreboardDF.merge(teamsDF, left_on='teamID', right_index=True, how='left')
     df = df.merge(multiplierDF, left_on=['Week', 'FullTeamName'], right_on=['Week', 'Team'], how='left')
     df = df.merge(playerScoresDF, left_on=['Week', 'teamID', 'Multiplayer'], right_on=["Week", 'Team ID', 'Player'], how='left')
     df = df[['Week', 'matchupID','home_away', 'Points', 'FullTeamName', 'Timestamp', 'Multiplayer', 'Multiplier', 'Actual']]
 
-    df['Multiplier'] = np.where(df['Actual'].isnull()==True, None, df['Multiplier'])
+    df['Multiplier'] = np.where(df['Actual'].isnull()==True, None, df['Multiplier']) # Adjust non-locked multipliers here
     df['Adjustment'] = -1*(1-df['Multiplier'])*df['Actual']
     df['AdjustedScore'] = df['Adjustment'] + df['Points']
     df['AdjustedScore'] = np.where(df['AdjustedScore'].isnull()==True, df['Points'], df['AdjustedScore'])
@@ -317,9 +359,9 @@ def mergeScores(teamsDF, scoreboardDF, multiplierDF, playerScoresDF):
 def scoresToDict(scoreboardDF, nbrGames):
     '''
     Convert Pandas DataFrame of scores to dictionary datatype so it can be passed as param to Flask page
-    :param scoreboardDF: DataFrame of weekly fantasy team matchups and adjusted scores
-    :param nbrGames: Number of fantasy matchups per week (i.e. # Teams / 2)
-    :return: Dictionary of matchups and scores
+    :param scoreboardDF (DataFrame): Nbr Rows = {n Teams}. Cols = [Week, matchupID, teamID, Points, home_away]
+    :param nbrGames (int): Number of fantasy matchups per week (i.e. # Teams / 2)
+    :return (dict): [KEY:VALUES PAIRS TO BE COMPLETED]
     '''
     scoreboardDict = {}
     for game in range(1, nbrGames + 1):

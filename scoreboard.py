@@ -24,7 +24,7 @@ config.read('config.txt')
 
 # Google Sheets Parameters
 SAMPLE_SPREADSHEET_ID = config.get('Sheets Parameters', 'SAMPLE_SPREADSHEET_ID')
-SAMPLE_RANGE_NAME = config.get('Sheets Parameters', 'SAMPLE_RANGE_NAME')
+INPUT_DATA_RANGE = config.get('Sheets Parameters', 'INPUT_DATA_RANGE')
 
 # League Parameters
 multiplierList = [float(x) for x in config.get('League Parameters', 'multiplierList').split(', ')]
@@ -43,7 +43,7 @@ initialTime=datetime.datetime.now()
 
 ##  ******************* PROCESS INPUT FROM GOOGLE SHEETS *******************
 # Get data from sheets
-sheetsDF = helpers.getSheetsData(SAMPLE_SPREADSHEET_ID, SAMPLE_RANGE_NAME)
+sheetsDF = helpers.getSheetsData(SAMPLE_SPREADSHEET_ID, INPUT_DATA_RANGE) # Form Responses 1!A:F
 
 # Randomly select multipliers
 multiplierPivot, unstacked_multiplierDF = helpers.getMultipliers(sheetsDF, multiplierList)
@@ -57,6 +57,10 @@ teamsDF = helpers.getTeamsKey(leagueID, year, swid_cookie, s2_cookie)
 ################################################################################
 ##  ******************* RENDER PAGES WITH FLASK *******************
 ################################################################################
+
+@app.route('/')
+def home():
+    return redirect('/scoreboard')
 
 @app.route('/scoreboard')
 def scoreboard_page():
@@ -73,7 +77,7 @@ def weekGeneric_page(viewWeek):
     viewWeek = int(viewWeek)
 
     # GET SHEETS INPUT
-    sheetsDF = helpers.getSheetsData(SAMPLE_SPREADSHEET_ID, SAMPLE_RANGE_NAME)
+    sheetsDF = helpers.getSheetsData(SAMPLE_SPREADSHEET_ID, INPUT_DATA_RANGE)
     multiplierPivot, unstacked_multiplierDF = helpers.getMultipliers(sheetsDF, multiplierList)
     multiplierDF = sheetsDF.merge(unstacked_multiplierDF, left_on=['Team', 'Week'], right_on=['Team', 'Week'], how='left')
 
@@ -89,6 +93,7 @@ def weekGeneric_page(viewWeek):
     adjustedScores = helpers.mergeScores(teamsDF, scoreboardDF, multiplierDF, playerScoresDF)
     scoreboardDict = helpers.scoresToDict(adjustedScores, int(teamsDF.shape[0]/2))
 
+    print(scoreboardDict.keys())
     return render_template('scoreboard.html',
                             input1='Week {}'.format(viewWeek),
                             scoreboardDict=scoreboardDict,
@@ -100,19 +105,22 @@ def multiplier_page():
     # ToDo - Treatment to not reval multiplier if gametime has not yet passed
 
     # Get data from sheets
-    sheetsDF = helpers.getSheetsData(SAMPLE_SPREADSHEET_ID, SAMPLE_RANGE_NAME)
+    sheetsDF = helpers.getSheetsData(SAMPLE_SPREADSHEET_ID, INPUT_DATA_RANGE)
 
     # Randomly select multipliers
     multiplierPivot, unstacked_multiplierDF = helpers.getMultipliers(sheetsDF, multiplierList)
+    multiplierPivot = multiplierPivot.reset_index().rename(columns={'index':'Team'})
 
-    for i in range(1,17+1): # Hardcoded number of matchup weeks
-        try:
-            multiplierPivot[str(i)] = multiplierPivot[str(i)].apply(lambda x: str(x))
-        except:
-            multiplierPivot[str(i)] = ''
+    # Hide multipliers for current week
+    # ToDo - Need handling to display week 16 multipliers at end of season
+    currentWeek = helpers.getCurrentWeek(leagueID, year, swid_cookie, s2_cookie)
+    multiplierPivot[currentWeek] = ' '
 
-    multiplierDict = multiplierPivot.reset_index().rename(columns={'index':'Team'}).to_dict(orient='index')
+    # Format values as List of Lists to be accepted by Google Sheets API
+    values = multiplierPivot.values.tolist()
+    values.insert(0, [str(x) for x in list(multiplierPivot.columns)])
 
-    return render_template('multipliers.html',
-                            multiplierDict=multiplierDict,
+    helpers.writeSheetData(SAMPLE_SPREADSHEET_ID, 'Multipliers!A:Q', values)
+
+    return render_template('multipliers_GS.html',
                             time=datetime.datetime.now())
