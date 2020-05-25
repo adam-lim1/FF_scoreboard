@@ -1,4 +1,4 @@
-from flask import Flask, render_template, redirect
+from flask import Flask, render_template, redirect, flash, url_for
 import datetime
 import requests
 import configparser
@@ -13,8 +13,11 @@ from google_auth_oauthlib.flow import InstalledAppFlow
 from google.auth.transport.requests import Request
 
 import helpers as helpers
+from config import Config
+from forms import InputForm
 
 app = Flask(__name__)
+app.config.from_object(Config)
 
 ################################################################################
 ##  ******************* GET CONFIG INFO *******************
@@ -124,3 +127,18 @@ def multiplier_page():
 
     return render_template('multipliers_GS.html',
                             time=datetime.datetime.now())
+
+
+@app.route('/input_form', methods=['GET', 'POST'])
+def input_form():
+    form = InputForm()
+    if form.validate_on_submit():
+        flash('Submission: user {}, multiplayer={}, seed={}'.format(
+            form.username.data, form.multiplayer.data, form.seed.data))
+        # ToDo - Write to DynamoDB
+        return redirect(url_for('temp_redirect'))
+    return render_template('input_form.html', title='Sign In', form=form)
+
+@app.route('/temp_redirect')
+def temp_redirect():
+    return render_template('temp_redirect.html')
