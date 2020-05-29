@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block nav_item_setplayer %}active{% endblock nav_item_setplayer %}
+{% block content %}
+
+<head>
+<style>
+div {
+  padding-left: 25px;
+}
+</style>
+</head>
+
+<body>
+<div>
+    <h1>Select Multiplayer</h1>
+    <p> This page would be redirected to behind login page </p>
+    <form action="" method="post" novalidate>
+        {{ form.hidden_tag() }}
+        <p>
+            {{ form.username.label }}*<br>
+            {{ form.username(size=32) }}
+            {% for error in form.username.errors %}
+            <span style="color: red;">[{{ error }}]</span>
+            {% endfor %}
+        </p>
+        <p>
+            {{ form.multiplayer.label }}*<br>
+            {{ form.multiplayer(size=32) }}
+            {% for error in form.multiplayer.errors %}
+            <span style="color: red;">[{{ error }}]</span>
+            {% endfor %}
+        </p>
+        <p>
+            {{ form.seed.label }}<br>
+            {{ form.seed(size=32) }}
+            {% for error in form.seed.errors %}
+            <span style="color: red;">[{{ error }}]</span>
+            {% endfor %}
+        </p>
+        <p>{{ form.submit() }}</p>
+
+        <br></br>
+        <p> * required </p>
+    </form>
+</div>
+</body>
+
+{% endblock %}
