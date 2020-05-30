@@ -51,12 +51,11 @@ multiplierPivot, unstacked_multiplierDF = helpers.getMultipliers(sheetsDF, multi
 multiplierDF = sheetsDF.merge(unstacked_multiplierDF, left_on=['Team', 'Week'], right_on=['Team', 'Week'], how='left')
 
 ##  ******************* PULL MATCHUPS AND SCORING FROM ESPN *******************
-# Team names and ID
-teamsDF = helpers.getTeamsKey(Config.leagueID, Config.year, Config.swid_cookie, Config.s2_cookie)
-
 ## ******************* INSTANTIATE ESPN FF CLASS OBJECT *******************
 espn_stats = espn(Config.leagueID, Config.year, Config.swid_cookie, Config.s2_cookie)
 
+# ToDo - logic to map native username to teamID
+teamsDF = espn_stats.getTeamsKey()
 ################################################################################
 ##  ******************* RENDER PAGES WITH FLASK *******************
 ################################################################################
@@ -85,12 +84,12 @@ def weekGeneric_page(viewWeek):
     multiplierDF = sheetsDF.merge(unstacked_multiplierDF, left_on=['Team', 'Week'], right_on=['Team', 'Week'], how='left')
 
     # GET TEAM SCORES FOR WEEK
-    scoreboardDF = helpers.getWeekScoreboard(Config.leagueID, Config.year, Config.swid_cookie, Config.s2_cookie, viewWeek)
+    scoreboardDF = espn_stats.getWeekScoreboard(viewWeek)
     scoreboardDF = scoreboardDF.merge(teamsDF, left_on='teamID', right_index=True, how='left')
     scoreboardDF = scoreboardDF.rename(columns={'FullTeamName':'Team'})
 
     # GET PLAYER SCORES FOR WEEK
-    playerScoresDF = helpers.getWeekPlayerScores(Config.leagueID, Config.year, Config.swid_cookie, Config.s2_cookie, viewWeek)
+    playerScoresDF = espn_stats.getWeekPlayerScores(viewWeek)
 
     # JOIN
     adjustedScores = helpers.mergeScores(teamsDF, scoreboardDF, multiplierDF, playerScoresDF)
@@ -116,7 +115,7 @@ def multiplier_page():
 
     # Hide multipliers for current week
     # ToDo - Need handling to display week 16 multipliers at end of season
-    currentWeek = helpers.getCurrentWeek(Config.leagueID, Config.year, Config.swid_cookie, Config.s2_cookie)
+    currentWeek = espn_stats.getCurrentWeek()
     multiplierPivot[currentWeek] = ' '
 
     # Format values as List of Lists to be accepted by Google Sheets API
