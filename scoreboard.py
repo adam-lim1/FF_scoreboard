@@ -15,6 +15,7 @@ from google.auth.transport.requests import Request
 import helpers as helpers
 from config import Config
 from forms import InputForm
+from espn import espn
 
 app = Flask(__name__)
 app.config.from_object(Config)
@@ -53,6 +54,8 @@ multiplierDF = sheetsDF.merge(unstacked_multiplierDF, left_on=['Team', 'Week'], 
 # Team names and ID
 teamsDF = helpers.getTeamsKey(Config.leagueID, Config.year, Config.swid_cookie, Config.s2_cookie)
 
+## ******************* INSTANTIATE ESPN FF CLASS OBJECT *******************
+espn_stats = espn(Config.leagueID, Config.year, Config.swid_cookie, Config.s2_cookie)
 
 ################################################################################
 ##  ******************* RENDER PAGES WITH FLASK *******************
@@ -65,7 +68,7 @@ def home():
 @app.route('/scoreboard')
 def scoreboard_page():
     ## Find current week and redirect to there
-    currentWeek = helpers.getCurrentWeek(Config.leagueID, Config.year, Config.swid_cookie, Config.s2_cookie)
+    currentWeek = espn_stats.getCurrentWeek()
     currentWeek = str(currentWeek)
 
     return redirect('/scoreboard/week{}'.format(currentWeek))
