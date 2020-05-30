@@ -33,10 +33,7 @@ INPUT_DATA_RANGE = config.get('Sheets Parameters', 'INPUT_DATA_RANGE')
 multiplierList = [float(x) for x in config.get('League Parameters', 'multiplierList').split(', ')]
 
 # ESPN Parameters
-leagueID = config.get('ESPN Parameters', 'leagueID')
-year = config.get('ESPN Parameters', 'year')
-swid_cookie = config.get('ESPN Parameters', 'swid_cookie')
-s2_cookie = config.get('ESPN Parameters', 's2_cookie')
+# Imported from config
 
 ################################################################################
 ##  ******************* GET DATA FROM GOOGLE/ESPN *******************
@@ -54,7 +51,7 @@ multiplierDF = sheetsDF.merge(unstacked_multiplierDF, left_on=['Team', 'Week'], 
 
 ##  ******************* PULL MATCHUPS AND SCORING FROM ESPN *******************
 # Team names and ID
-teamsDF = helpers.getTeamsKey(leagueID, year, swid_cookie, s2_cookie)
+teamsDF = helpers.getTeamsKey(Config.leagueID, Config.year, Config.swid_cookie, Config.s2_cookie)
 
 
 ################################################################################
@@ -68,7 +65,7 @@ def home():
 @app.route('/scoreboard')
 def scoreboard_page():
     ## Find current week and redirect to there
-    currentWeek = helpers.getCurrentWeek(leagueID, year, swid_cookie, s2_cookie)
+    currentWeek = helpers.getCurrentWeek(Config.leagueID, Config.year, Config.swid_cookie, Config.s2_cookie)
     currentWeek = str(currentWeek)
 
     return redirect('/scoreboard/week{}'.format(currentWeek))
@@ -85,12 +82,12 @@ def weekGeneric_page(viewWeek):
     multiplierDF = sheetsDF.merge(unstacked_multiplierDF, left_on=['Team', 'Week'], right_on=['Team', 'Week'], how='left')
 
     # GET TEAM SCORES FOR WEEK
-    scoreboardDF = helpers.getWeekScoreboard(leagueID, year, swid_cookie, s2_cookie, viewWeek)
+    scoreboardDF = helpers.getWeekScoreboard(Config.leagueID, Config.year, Config.swid_cookie, Config.s2_cookie, viewWeek)
     scoreboardDF = scoreboardDF.merge(teamsDF, left_on='teamID', right_index=True, how='left')
     scoreboardDF = scoreboardDF.rename(columns={'FullTeamName':'Team'})
 
     # GET PLAYER SCORES FOR WEEK
-    playerScoresDF = helpers.getWeekPlayerScores(leagueID, year, swid_cookie, s2_cookie, viewWeek)
+    playerScoresDF = helpers.getWeekPlayerScores(Config.leagueID, Config.year, Config.swid_cookie, Config.s2_cookie, viewWeek)
 
     # JOIN
     adjustedScores = helpers.mergeScores(teamsDF, scoreboardDF, multiplierDF, playerScoresDF)
@@ -116,7 +113,7 @@ def multiplier_page():
 
     # Hide multipliers for current week
     # ToDo - Need handling to display week 16 multipliers at end of season
-    currentWeek = helpers.getCurrentWeek(leagueID, year, swid_cookie, s2_cookie)
+    currentWeek = helpers.getCurrentWeek(Config.leagueID, Config.year, Config.swid_cookie, Config.s2_cookie)
     multiplierPivot[currentWeek] = ' '
 
     # Format values as List of Lists to be accepted by Google Sheets API
