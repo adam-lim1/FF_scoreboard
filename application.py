@@ -14,7 +14,24 @@ from google.auth.transport.requests import Request
 
 import helpers as helpers
 
-app = Flask(__name__)
+# EB looks for an 'application' callable by default.
+application = Flask(__name__)
+
+# add a rule for the index page.
+# @application.route('/')
+# def home():
+#     username = "World"
+#     return render_template('hello_world.html',
+#                             username=username,
+#                             time=datetime.datetime.now())
+
+# application.add_url_rule('/', 'index', (lambda: header_text +
+#     say_hello() + instructions + footer_text))
+#
+# # add a rule when the page is accessed with a name appended to the site
+# # URL.
+# application.add_url_rule('/<username>', 'hello', (lambda username:
+#     header_text + say_hello(username) + home_link + footer_text))
 
 ################################################################################
 ##  ******************* GET CONFIG INFO *******************
@@ -58,11 +75,11 @@ teamsDF = helpers.getTeamsKey(leagueID, year, swid_cookie, s2_cookie)
 ##  ******************* RENDER PAGES WITH FLASK *******************
 ################################################################################
 
-@app.route('/')
+@application.route('/')
 def home():
     return redirect('/scoreboard')
 
-@app.route('/scoreboard')
+@application.route('/scoreboard')
 def scoreboard_page():
     ## Find current week and redirect to there
     currentWeek = helpers.getCurrentWeek(leagueID, year, swid_cookie, s2_cookie)
@@ -71,7 +88,7 @@ def scoreboard_page():
     return redirect('/scoreboard/week{}'.format(currentWeek))
 
 ### Generic routing function to cover each week
-@app.route('/scoreboard/week<viewWeek>')
+@application.route('/scoreboard/week<viewWeek>')
 def weekGeneric_page(viewWeek):
 
     viewWeek = int(viewWeek)
@@ -99,7 +116,7 @@ def weekGeneric_page(viewWeek):
                             scoreboardDict=scoreboardDict,
                             time=datetime.datetime.now())
 
-@app.route('/MultiplierResults')
+@application.route('/MultiplierResults')
 def multiplier_page():
 
     # ToDo - Treatment to not reval multiplier if gametime has not yet passed
@@ -124,3 +141,11 @@ def multiplier_page():
 
     return render_template('multipliers_GS.html',
                             time=datetime.datetime.now())
+
+
+# run the app.
+if __name__ == "__main__":
+    # Setting debug to True enables debug output. This line should be
+    # removed before deploying a production app.
+    application.debug = True
+    application.run()
