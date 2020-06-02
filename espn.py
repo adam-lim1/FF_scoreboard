@@ -1,3 +1,4 @@
+# ToDo - Tabs vs. Spaces Alignment
 import requests
 import pandas as pd
 
@@ -202,3 +203,35 @@ class espn:
                           columns=['Week', 'Team ID', 'Player', 'Slot',
                                    'Pos', 'Status', 'Proj', 'Actual'])
       return data
+
+  def getPlayerLockStatus(self, *args):
+	  """
+	  Function to check if player(s) (specified by args) are locked for given scoringPeriodId
+	  NOTE - THIS FUNCTION NEEDS TESTING W/ ESPN API WHILE WEEK IS IN PROGRESS
+	  HAS ONLY BEEN TESTED DURING OFF-SEASON
+	  """
+	  url = "https://fantasy.espn.com/apis/v3/games/ffl/seasons/{year}/segments/0/leagues/{leagueID}?view=mRoster".format(
+	  leagueID=self.leagueID,
+	  year=self.year)
+
+	  r = requests.get(url,
+	  cookies={"swid": "{swid_cookie}".format(swid_cookie=self.swid_cookie),
+	  "espn_s2": "{s2_cookie}".format(s2_cookie=self.s2_cookie)})
+
+	  # Iterate through Players for each team, adding current status to dict
+	  status_dict = {}
+	  for teamID in range(0,12): # ToDo - Dynamically get number of teams
+	  	roster = r.json()['teams'][teamID]['roster']['entries']
+	  	for player in range(0, 16): # ToDo - Dynamically get number of roster spots per team
+	  		status_dict[roster[player]['playerPoolEntry']['player']['fullName']] = roster[player]['playerPoolEntry']['lineupLocked']
+	  		# rosterLocked?
+
+	  # Return boolean Lock Status for player in args
+	  t = ()
+	  for p in args:
+		  if len(args) > 1:
+			  t += (status_dict.get(p, 'Error'),)
+		  else:
+			  t = status_dict.get(p, 'Error')
+
+	  return t

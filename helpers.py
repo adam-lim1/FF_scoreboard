@@ -139,34 +139,34 @@ def getMultipliers(sheetsDF, origMultiplierList, fillNullValue=1234):
 
 
 ############## ToDo - Write to ESPN Class ##############
-def getTeamsKey(leagueID, year, swid_cookie, s2_cookie):
-    '''
-    Get list of Teams and Team ID from ESPN Fantasy Football API. Create Team Name as {Location} + {Nickname} + ({Abbreviation})
-    :param leagueID (str): ESPN League ID. For further information on ESPN Parameters, see here: https://stmorse.github.io/journal/espn-fantasy-v3.html
-    :param year (str): ESPN League Year
-    :param swid_cookie (str): ESPN SWID Cookie for private leagues
-    :param s2_cookie (str): ESPN S2 Cookie for private leagues
-    :return (DataFrame): Nbr Rows = {n Teams}. Cols = [FullTeamName]
-    '''
-    # ToDo: Complete function docstring
-
-    url = "https://fantasy.espn.com/apis/v3/games/ffl/seasons/{year}/segments/0/leagues/{leagueID}?view=mBoxscore".format(
-    leagueID=leagueID,
-    year=year)
-
-    r = requests.get(url,
-                     cookies={"swid": "{swid_cookie}".format(swid_cookie=swid_cookie),
-                              "espn_s2": "{s2_cookie}".format(s2_cookie=s2_cookie)})
-
-    teams = pd.DataFrame(r.json()['teams'])
-    teams['FullTeamName'] = teams['location'] + " " + teams['nickname'] + " (" + teams['abbrev'] + ")"
-    teamsKey = teams[['id', 'FullTeamName']]
-    teamsKey = teamsKey.set_index('id')
-
-    ## Error handling for bye's
-    teamsKey.loc[-999] = 'BYE'
-
-    return teamsKey
+# def getTeamsKey(leagueID, year, swid_cookie, s2_cookie):
+#     '''
+#     Get list of Teams and Team ID from ESPN Fantasy Football API. Create Team Name as {Location} + {Nickname} + ({Abbreviation})
+#     :param leagueID (str): ESPN League ID. For further information on ESPN Parameters, see here: https://stmorse.github.io/journal/espn-fantasy-v3.html
+#     :param year (str): ESPN League Year
+#     :param swid_cookie (str): ESPN SWID Cookie for private leagues
+#     :param s2_cookie (str): ESPN S2 Cookie for private leagues
+#     :return (DataFrame): Nbr Rows = {n Teams}. Cols = [FullTeamName]
+#     '''
+#     # ToDo: Complete function docstring
+#
+#     url = "https://fantasy.espn.com/apis/v3/games/ffl/seasons/{year}/segments/0/leagues/{leagueID}?view=mBoxscore".format(
+#     leagueID=leagueID,
+#     year=year)
+#
+#     r = requests.get(url,
+#                      cookies={"swid": "{swid_cookie}".format(swid_cookie=swid_cookie),
+#                               "espn_s2": "{s2_cookie}".format(s2_cookie=s2_cookie)})
+#
+#     teams = pd.DataFrame(r.json()['teams'])
+#     teams['FullTeamName'] = teams['location'] + " " + teams['nickname'] + " (" + teams['abbrev'] + ")"
+#     teamsKey = teams[['id', 'FullTeamName']]
+#     teamsKey = teamsKey.set_index('id')
+#
+#     ## Error handling for bye's
+#     teamsKey.loc[-999] = 'BYE'
+#
+#     return teamsKey
 
 def mergeScores(teamsDF, scoreboardDF, multiplierDF, playerScoresDF):
     '''
