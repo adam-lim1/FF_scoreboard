@@ -7,97 +7,6 @@ import pandas as pd
 import numpy as np
 import random
 
-from googleapiclient.discovery import build
-from google_auth_oauthlib.flow import InstalledAppFlow
-from google.auth.transport.requests import Request
-
-############## ToDo - Write to Google Sheets Class ##############
-def getSheetsData(SAMPLE_SPREADSHEET_ID, SAMPLE_RANGE_NAME, fillNullValue=np.nan):
-    '''
-    Wrapper function for reading Google Sheets data into Pandas DataFrame
-    :param SAMPLE_SPREADSHEET_ID (str): Google Sheet ID. For additional documentation see: https://developers.google.com/sheets/api/quickstart/python
-    :param SAMPLE_RANGE_NAME (str): A1 Notation cell range to read from Google Sheet. See: https://developers.google.com/sheets/api/quickstart/python
-    :param fillNullValue: Value to fill null spreadsheet cells with. (Default = np.nan)
-    :return (DataFrame): Pandas DataFrame representing data from Google Sheet
-    '''
-
-    #### CALL SHEET API
-    if os.path.exists('credentials/token.pickle'):
-            with open('credentials/token.pickle', 'rb') as token:
-                creds = pickle.load(token)
-
-    service = build('sheets', 'v4', credentials=creds)
-    sheet = service.spreadsheets()
-    result = sheet.values().get(spreadsheetId=SAMPLE_SPREADSHEET_ID, range=SAMPLE_RANGE_NAME).execute()
-
-    ## CONVERT TO PANDAS DF
-    header = result.get('values', [])[0]
-    values = result.get('values', [])[1:]
-
-    outputLists = []
-    for i in values:
-        defaultRow = [fillNullValue]*len(header)
-        defaultRow[:len(i)] = i
-        defaultRow = [fillNullValue if x  == '' else x for x in defaultRow]
-        outputLists.append(defaultRow)
-    df = pd.DataFrame(outputLists, columns=header)
-
-    ##### TRANSFORMATIONS TO SHEETS DATA #####
-    df = df.rename(columns={"Select Team": "Team",
-                            "Enter Multi-Player": "Multiplayer",
-                            "Enter Seed (Optional)":"Seed",
-                            "Select Week": "Week",
-                           })
-
-    ## DATA PRE-PROCESSING TO ENSURE APPROPRIATE VALUES
-    df = df.drop_duplicates()
-
-    ## SELECT LATEST ENTRY FOR EACH TEAM FOR EACH WEEK
-    latestTimestampIndex = df.groupby(['Week', 'Team'])['Timestamp'].transform(max) == df['Timestamp']
-    df = df.loc[latestTimestampIndex]
-
-    ## CREATE NULL ENTRIES IF DATA IS MISSING FOR ANY TEAM/WEEK
-    timestampDF = df.pivot(index='Team', columns='Week', values='Timestamp').unstack().reset_index().copy()
-    timestampDF = timestampDF.rename(columns={0:'Timestamp'})
-
-    multiplayerDF = df.pivot(index='Team', columns='Week', values='Multiplayer').unstack().reset_index().copy()
-    multiplayerDF = multiplayerDF.rename(columns={0:'Multiplayer'})
-
-    seedDF = df.pivot(index='Team', columns='Week', values='Seed').unstack().reset_index().copy()
-    seedDF = seedDF.rename(columns={0:'Seed'})
-
-    # MERGE TIMESTAMP, MULTIPLAYER, SEED
-    temp1 = timestampDF.merge(multiplayerDF, left_on=['Week', 'Team'], right_on=['Week', 'Team'], how='left')
-    outputDF = temp1.merge(seedDF, left_on=['Week', 'Team'], right_on=['Week', 'Team'], how='left')
-    outputDF['Week'] = outputDF['Week'].apply(lambda x: int(x.split(' ')[1]))
-
-    ### ToDo - Verify if player entered before kickoff time ###
-
-    return outputDF
-
-def writeSheetData(SAMPLE_SPREADSHEET_ID, SAMPLE_RANGE_NAME, values):
-    '''
-    [ TO BE COMPLETED ]
-    :param SAMPLE_SPREADSHEET_ID (str): Google Sheet ID. For additional documentation see: https://developers.google.com/sheets/api/quickstart/python
-    :param SAMPLE_RANGE_NAME (str): A1 Notation cell range to read from Google Sheet. See: https://developers.google.com/sheets/api/quickstart/python
-    :param values: [ TO BE COMPLETED ]
-    '''
-
-    body = {'values': values}
-
-    if os.path.exists('credentials/token.pickle'):
-        with open('credentials/token.pickle', 'rb') as token:
-            creds = pickle.load(token)
-
-    service = build('sheets', 'v4', credentials=creds)
-    sheet = service.spreadsheets()
-
-    service.spreadsheets().values().update(spreadsheetId=SAMPLE_SPREADSHEET_ID,
-                                       range=SAMPLE_RANGE_NAME,
-                                       valueInputOption='RAW',
-                                       body=body).execute()
-
-    return 1
 
 def getMultipliers(sheetsDF, origMultiplierList, fillNullValue=1234):
     '''
@@ -136,37 +45,6 @@ def getMultipliers(sheetsDF, origMultiplierList, fillNullValue=1234):
         unstacked_multiplierDF = unstacked_multiplierDF.rename(columns={'level_1':'Team', 0:'Multiplier'})
         #unstacked_multiplierDF['Select Week'] = unstacked_multiplierDF['Select Week'].apply(lambda x: x.split(' ')[1])
     return multiplierDF, unstacked_multiplierDF
-
-
-############## ToDo - Write to ESPN Class ##############
-# def getTeamsKey(leagueID, year, swid_cookie, s2_cookie):
-#     '''
-#     Get list of Teams and Team ID from ESPN Fantasy Football API. Create Team Name as {Location} + {Nickname} + ({Abbreviation})
-#     :param leagueID (str): ESPN League ID. For further information on ESPN Parameters, see here: https://stmorse.github.io/journal/espn-fantasy-v3.html
-#     :param year (str): ESPN League Year
-#     :param swid_cookie (str): ESPN SWID Cookie for private leagues
-#     :param s2_cookie (str): ESPN S2 Cookie for private leagues
-#     :return (DataFrame): Nbr Rows = {n Teams}. Cols = [FullTeamName]
-#     '''
-#     # ToDo: Complete function docstring
-#
-#     url = "https://fantasy.espn.com/apis/v3/games/ffl/seasons/{year}/segments/0/leagues/{leagueID}?view=mBoxscore".format(
-#     leagueID=leagueID,
-#     year=year)
-#
-#     r = requests.get(url,
-#                      cookies={"swid": "{swid_cookie}".format(swid_cookie=swid_cookie),
-#                               "espn_s2": "{s2_cookie}".format(s2_cookie=s2_cookie)})
-#
-#     teams = pd.DataFrame(r.json()['teams'])
-#     teams['FullTeamName'] = teams['location'] + " " + teams['nickname'] + " (" + teams['abbrev'] + ")"
-#     teamsKey = teams[['id', 'FullTeamName']]
-#     teamsKey = teamsKey.set_index('id')
-#
-#     ## Error handling for bye's
-#     teamsKey.loc[-999] = 'BYE'
-#
-#     return teamsKey
 
 def mergeScores(teamsDF, scoreboardDF, playerScoresDF):
     '''
