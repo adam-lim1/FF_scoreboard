@@ -168,20 +168,19 @@ def getMultipliers(sheetsDF, origMultiplierList, fillNullValue=1234):
 #
 #     return teamsKey
 
-def mergeScores(teamsDF, scoreboardDF, multiplierDF, playerScoresDF):
+def mergeScores(teamsDF, scoreboardDF, playerScoresDF):
     '''
     [TO BE COMPLETED]
     :param teamsDF (DataFrame):  Nbr Rows = {n Teams}. Cols = [FullTeamName]
     :param scoreboardDF (DataFrame): Nbr Rows = {n Teams}. Cols = [Week, matchupID, teamID, Points, home_away]
-    :param multiplierDF (DataFrame): Nbr Rows = {n Teams}. Cols = [ TO BE COMPLETED ]
     :param playerScoresDF (DataFrame): Nbr Rows = {n Teams * nbr Players / Team}. Cols = [Week, Team ID, Player, Slot, Pos, Status, Proj, Actual]
     :return (DataFrame): Nbr Rows = {n Teams}. Cols = [TO BE COMPLETED]
     '''
 
     df = scoreboardDF.merge(teamsDF, left_on='teamID', right_index=True, how='left')
-    df = df.merge(multiplierDF, left_on=['Week', 'FullTeamName'], right_on=['Week', 'Team'], how='left')
+    #df = df.merge(multiplierDF, left_on=['Week', 'FullTeamName'], right_on=['Week', 'Team'], how='left')
     df = df.merge(playerScoresDF, left_on=['Week', 'teamID', 'Multiplayer'], right_on=["Week", 'Team ID', 'Player'], how='left')
-    df = df[['Week', 'matchupID','home_away', 'Points', 'FullTeamName', 'Timestamp', 'Multiplayer', 'Multiplier', 'Actual']]
+    df = df[['Week', 'matchupID','home_away', 'Points', 'FullTeamName', 'Multiplayer', 'Multiplier', 'Actual']] # 'Timestamp',
 
     df['Multiplier'] = np.where(df['Actual'].isnull()==True, None, df['Multiplier']) # Adjust non-locked multipliers here
     df['Adjustment'] = -1*(1-df['Multiplier'])*df['Actual']

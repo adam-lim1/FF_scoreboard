@@ -78,27 +78,34 @@ def weekGeneric_page(viewWeek):
 
     viewWeek = int(viewWeek)
 
-    # GET SHEETS INPUT
-    sheetsDF = helpers.getSheetsData(SAMPLE_SPREADSHEET_ID, INPUT_DATA_RANGE)
-    multiplierPivot, unstacked_multiplierDF = helpers.getMultipliers(sheetsDF, multiplierList)
-    multiplierDF = sheetsDF.merge(unstacked_multiplierDF, left_on=['Team', 'Week'], right_on=['Team', 'Week'], how='left')
-
-    # GET TEAM SCORES FOR WEEK
+    # GET TEAM SCORES FOR WEEK - (BASE)
     scoreboardDF = espn_stats.getWeekScoreboard(viewWeek)
     scoreboardDF = scoreboardDF.merge(teamsDF, left_on='teamID', right_index=True, how='left')
     scoreboardDF = scoreboardDF.rename(columns={'FullTeamName':'Team'})
 
-    # GET PLAYER SCORES FOR WEEK
+    # LOOKUP MULTIPLIER (BY WEEK/TEAM ID)
+    # Simulate Update via API - ToDo: Replace with DynamoDB Read API
+    multiplier_df = pd.read_csv('sample_data/multipliers.csv')
+    multipliers = multiplier_df.set_index(['Week', 'TeamID']).to_dict(orient='index')
+    scoreboardDF['Multiplier'] = scoreboardDF['teamID'].apply(lambda x: multipliers[(viewWeek, x)]['Multiplier'])
+
+    # LOOK UP MULTIPLAYER (BY WEEK/TEAM ID)
+    # Simulate Update via API - ToDo: Replace with DynamoDB Read API
+    multiplayer_df = pd.read_csv('sample_data/multiplayer_input.csv')
+    multiplayers = multiplayer_df.set_index(['Week', 'TeamID']).to_dict(orient='index')
+    scoreboardDF['Multiplayer'] = scoreboardDF['teamID'].apply(lambda x: multiplayers[(viewWeek, x)]['Multiplayer'])
+
+    # GET PLAYER SCORES FOR WEEK (AND APPEND)
     playerScoresDF = espn_stats.getWeekPlayerScores(viewWeek)
 
     # JOIN
-    adjustedScores = helpers.mergeScores(teamsDF, scoreboardDF, multiplierDF, playerScoresDF)
+    adjustedScores = helpers.mergeScores(teamsDF, scoreboardDF, playerScoresDF)
     scoreboardDict = helpers.scoresToDict(adjustedScores, int(teamsDF.shape[0]/2))
 
     print(scoreboardDict.keys())
     return render_template('scoreboard.html',
                             input1='Week {}'.format(viewWeek),
-                            scoreboardDict=scoreboardDict,
+                            scoreboardDict=scoreboardDict, # Team, Multiplayer, Multiplier, Score Adjustment, Adjusted Score
                             time=datetime.datetime.now())
 
 @app.route('/MultiplierResults')
