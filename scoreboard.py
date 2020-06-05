@@ -1,4 +1,4 @@
-from flask import Flask, render_template, redirect, flash, url_for
+from flask import Flask, render_template, redirect, flash, url_for, request
 import datetime
 import requests
 import configparser
@@ -114,4 +114,19 @@ def input_form():
 
 @app.route('/temp_redirect')
 def temp_redirect():
+    return render_template('temp_redirect.html')
+
+@app.route('/auth')
+def authenticate():
+    # AWS Cognito - https://ffl.auth.us-east-2.amazoncognito.com/login?response_type=code&client_id=6n7h391ts8jlt89pied1milh5a&redirect_uri=http://localhost:5000/auth/
+    return redirect("https://ffl.auth.us-east-2.amazoncognito.com/login?response_type=code&client_id=6n7h391ts8jlt89pied1milh5a&redirect_uri=http://localhost:5000/input_form_cognito")
+
+
+@app.route('/input_form_cognito')
+def cognito_response():
+    code = request.args.get('code')
+    print(code)
+    # Convert code to JWT
+    # Get User
+    # Expose form?
     return render_template('temp_redirect.html')
