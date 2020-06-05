@@ -1,10 +1,10 @@
 import boto3
 import csv
 
-def create_table(dynamodb=None, table_name):
+def create_multiplayer_table(table_name, dynamodb=None):
     dynamodb = boto3.client('dynamodb')
 
-    response = client.create_table(
+    response = dynamodb.create_table(
       AttributeDefinitions=[
           {
               'AttributeName': 'week',
@@ -25,7 +25,8 @@ def create_table(dynamodb=None, table_name):
               'AttributeName': 'team',
               'KeyType': 'RANGE'
           }
-      ]
+      ],
+      BillingMode= 'PAY_PER_REQUEST'
   )
 
     return response
@@ -50,5 +51,5 @@ if __name__ == '__main__':
     table_name = 'multiplayer_input'
 
 
-    db_table = create_table(table_name)
+    db_table = create_multiplayer_table(table_name)
     print("Table status:", db_table.table_status)
