@@ -44,7 +44,7 @@ def add_sample_data(table_name):
             #create dict to store csv data
             data = {}
             #map csv fields to dict fields
-            data['week'] = row['Week']
+            data['week'] = int(row['Week'])
             data['team'] = row['Team']
             data['multiplayer'] = row['Multiplayer']
             data['seed'] = row['Seed']
