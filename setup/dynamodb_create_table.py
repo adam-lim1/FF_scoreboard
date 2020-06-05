@@ -1,5 +1,5 @@
 import boto3
-
+import csv
 
 def create_table(dynamodb=None, table_name):
     dynamodb = boto3.client('dynamodb')
