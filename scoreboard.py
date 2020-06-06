@@ -7,6 +7,7 @@ import pickle
 import pandas as pd
 import numpy as np
 import random
+import boto3
 
 import helpers as helpers
 from config import Config
@@ -116,17 +117,37 @@ def input_form():
 def temp_redirect():
     return render_template('temp_redirect.html')
 
+############ ROUTING FOR COGNITO LOGIN ##############
 @app.route('/auth')
 def authenticate():
     # AWS Cognito - https://ffl.auth.us-east-2.amazoncognito.com/login?response_type=code&client_id=6n7h391ts8jlt89pied1milh5a&redirect_uri=http://localhost:5000/auth/
     return redirect("https://ffl.auth.us-east-2.amazoncognito.com/login?response_type=code&client_id=6n7h391ts8jlt89pied1milh5a&redirect_uri=http://localhost:5000/input_form_cognito")
 
-
 @app.route('/input_form_cognito')
 def cognito_response():
-    code = request.args.get('code')
-    print(code)
-    # Convert code to JWT
-    # Get User
+    access_code = request.args.get('code')
+
+    # Convert Access code to Token via TOKEN endpoint
+    # Reference: exchange_code_for_token function https://github.com/cgauge/Flask-AWSCognito/tree/6882a0c246dcc8da8e299c1e8b468ef5899bc373
+    # ToDo - add these to AWS class/Parameters
+    domain = 'https://ffl.auth.us-east-2.amazoncognito.com'
+    token_url = "{}/oauth2/token".format(domain)
+    data = {
+                "code": access_code,
+                "redirect_uri": 'http://localhost:5000/input_form_cognito',
+                "client_id": '6n7h391ts8jlt89pied1milh5a',
+                "grant_type": "authorization_code",
+            }
+    headers = {}
+    requests_client = requests.post
+
+    response = requests_client(token_url, data=data, headers=headers)
+    access_token = response.json()['access_token']
+
+    # Convert Token to User Info via Boto
+    client = boto3.client('cognito-idp')
+    user_info = client.get_user(AccessToken=access_token)
+    username = user_info['Username']
+
     # Expose form?
-    return render_template('temp_redirect.html')
+    return render_template('temp_redirect.html', username=username)
