@@ -20,14 +20,9 @@ app.config.from_object(Config)
 ################################################################################
 ##  ******************* GET CONFIG INFO *******************
 ################################################################################
-config = configparser.RawConfigParser()
-config.read('config.txt')
 
 # League Parameters
-multiplierList = [float(x) for x in config.get('League Parameters', 'multiplierList').split(', ')]
-
-# ESPN Parameters
-# Imported from config
+multiplierList = Config.multiplierList
 
 ################################################################################
 ##  ******************* GET DATA FROM GOOGLE/ESPN *******************
@@ -35,7 +30,6 @@ multiplierList = [float(x) for x in config.get('League Parameters', 'multiplierL
 
 initialTime=datetime.datetime.now()
 
-##  ******************* PULL MATCHUPS AND SCORING FROM ESPN *******************
 ## ******************* INSTANTIATE ESPN FF CLASS OBJECT *******************
 espn_stats = espn(Config.leagueID, Config.year, Config.swid_cookie, Config.s2_cookie)
 
@@ -110,15 +104,16 @@ def input_form():
         print(session['username'])
         form = InputForm()
         if form.validate_on_submit():
-            flash('Submission: multiplayer={}'.format( # user {}, seed={}
-                 form.multiplayer.data)) # form.username.data, form.seed.data
+            flash('Submission: multiplayer={}'.format(form.multiplayer.data))
             # ToDo - Write to DynamoDB
             return render_template('temp_redirect.html', username=session['username']) #redirect(url_for('temp_redirect'))
-        return render_template('input_form.html', title='Sign In', form=form, username=session['username'])
+        return render_template('input_form.html', form=form, username=session['username']) # ToDo - Clean up this section
+
     else: # Route to Cognito UI
         print('Not Authenticated')
         return redirect(url_for('authenticate'))
 
+# HTML landing page after input validated
 @app.route('/temp_redirect')
 def temp_redirect():
     return render_template('temp_redirect.html')
@@ -127,8 +122,9 @@ def temp_redirect():
 # Route to Cognito UI
 @app.route('/auth')
 def authenticate():
-    # AWS Cognito - https://ffl.auth.us-east-2.amazoncognito.com/login?response_type=code&client_id=6n7h391ts8jlt89pied1milh5a&redirect_uri=http://localhost:5000/auth/
-    return redirect("https://ffl.auth.us-east-2.amazoncognito.com/login?response_type=code&client_id=6n7h391ts8jlt89pied1milh5a&redirect_uri=http://localhost:5000/input_form_cognito")
+    # AWS Cognito
+    return redirect("{cognito_url}/login?response_type=code&client_id={app_client_id}&redirect_uri={redirect_uri}"\
+            .format(cognito_url=Config.cognito_url, app_client_id=Config.app_client_id, redirect_uri=Config.redirect_uri))
 
 # Return from Cognito UI - Add username to session
 @app.route('/input_form_cognito', methods=['GET', 'POST'])
@@ -138,15 +134,15 @@ def cognito_response():
     # Convert Access code to Token via TOKEN endpoint
     # Reference: exchange_code_for_token function https://github.com/cgauge/Flask-AWSCognito/tree/6882a0c246dcc8da8e299c1e8b468ef5899bc373
     # ToDo - add these to AWS class/Parameters
-    domain = 'https://ffl.auth.us-east-2.amazoncognito.com'
+    domain = Config.cognito_url
     token_url = "{}/oauth2/token".format(domain)
     data = {
                 "code": access_code,
-                "redirect_uri": 'http://localhost:5000/input_form_cognito',
-                "client_id": '6n7h391ts8jlt89pied1milh5a',
+                "redirect_uri": Config.redirect_uri,
+                "client_id": Config.app_client_id,
                 "grant_type": "authorization_code",
             }
-    headers = {}
+    headers = {} # Add b64 encoded client id : client secret here if needed
     requests_client = requests.post
 
     response = requests_client(token_url, data=data, headers=headers)
