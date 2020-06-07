@@ -1,4 +1,4 @@
-from flask import Flask, render_template, redirect, flash, url_for, request
+from flask import Flask, render_template, redirect, flash, url_for, request, session
 import datetime
 import requests
 import configparser
@@ -105,25 +105,33 @@ def multiplier_page():
 
 @app.route('/input_form', methods=['GET', 'POST'])
 def input_form():
-    form = InputForm()
-    if form.validate_on_submit():
-        flash('Submission: user {}, multiplayer={}, seed={}'.format(
-            form.username.data, form.multiplayer.data, form.seed.data))
-        # ToDo - Write to DynamoDB
-        return redirect(url_for('temp_redirect'))
-    return render_template('input_form.html', title='Sign In', form=form)
+    # If user is authenticated, expose form
+    if 'username' in session:
+        print(session['username'])
+        form = InputForm()
+        if form.validate_on_submit():
+            flash('Submission: multiplayer={}'.format( # user {}, seed={}
+                 form.multiplayer.data)) # form.username.data, form.seed.data
+            # ToDo - Write to DynamoDB
+            return render_template('temp_redirect.html', username=session['username']) #redirect(url_for('temp_redirect'))
+        return render_template('input_form.html', title='Sign In', form=form, username=session['username'])
+    else: # Route to Cognito UI
+        print('Not Authenticated')
+        return redirect(url_for('authenticate'))
 
 @app.route('/temp_redirect')
 def temp_redirect():
     return render_template('temp_redirect.html')
 
 ############ ROUTING FOR COGNITO LOGIN ##############
+# Route to Cognito UI
 @app.route('/auth')
 def authenticate():
     # AWS Cognito - https://ffl.auth.us-east-2.amazoncognito.com/login?response_type=code&client_id=6n7h391ts8jlt89pied1milh5a&redirect_uri=http://localhost:5000/auth/
     return redirect("https://ffl.auth.us-east-2.amazoncognito.com/login?response_type=code&client_id=6n7h391ts8jlt89pied1milh5a&redirect_uri=http://localhost:5000/input_form_cognito")
 
-@app.route('/input_form_cognito')
+# Return from Cognito UI - Add username to session
+@app.route('/input_form_cognito', methods=['GET', 'POST'])
 def cognito_response():
     access_code = request.args.get('code')
 
@@ -147,7 +155,7 @@ def cognito_response():
     # Convert Token to User Info via Boto
     client = boto3.client('cognito-idp')
     user_info = client.get_user(AccessToken=access_token)
-    username = user_info['Username']
+    session['username'] = user_info['Username']
+    print("Authenticated Username: {}".format(session['username']))
 
-    # Expose form?
-    return render_template('temp_redirect.html', username=username)
+    return redirect(url_for('input_form'))
