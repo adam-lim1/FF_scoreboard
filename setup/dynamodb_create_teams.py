@@ -1,5 +1,10 @@
 import boto3
 import time
+import sys
+import os
+
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), os.path.pardir)))
+from config import Config
 
 # ToDo - Replace prints with logger
 
@@ -28,7 +33,8 @@ def create_table(table_name, dynamodb=None):
 if __name__ == '__main__':
 
     table_name = 'teams'
-    client = boto3.client('dynamodb')
+    dynamodb = boto3.resource('dynamodb', region_name=Config.region_name)
+    dynamodb_client = dynamodb.meta.client
 
     # Create table if doesn't exist
     # https://stackoverflow.com/questions/42485616/how-to-check-if-dynamodb-table-exists
@@ -37,13 +43,12 @@ if __name__ == '__main__':
         print('Creating Teams table')
         print("Table status: {}".format(db_table['TableDescription']['TableStatus']))
 
-    except client.exceptions.ResourceInUseException:
+    except dynamodb_client.exceptions.ResourceInUseException:
         print('{} already exists'.format(table_name))
 
     # Insert data
     # ToDo - check affect if table (and data) exists
     print('Inserting data into Teams table')
-    time.sleep(15)
-    dynamodb = boto3.resource('dynamodb', region_name="us-east-2")
+    time.sleep(5)
     table = dynamodb.Table(table_name)
     table.put_item(Item={'teamID':str(8), 'username':'adam'})

@@ -8,7 +8,7 @@ import pandas as pd
 import numpy as np
 import random
 import boto3
-from boto3.dynamodb.conditions import Key 
+from boto3.dynamodb.conditions import Key
 
 import helpers as helpers
 from config import Config
@@ -33,15 +33,13 @@ initialTime=datetime.datetime.now()
 
 ## ******************* INSTANTIATE ESPN FF CLASS OBJECT *******************
 espn_stats = espn(Config.leagueID, Config.year, Config.swid_cookie, Config.s2_cookie)
-
-# ToDo - logic to map native username to teamID
 teamsDF = espn_stats.getTeamsKey()
 
 # Define AWS DynamoDB Resources
-dynamodb = boto3.resource('dynamodb', region_name="us-east-2")
+dynamodb = boto3.resource('dynamodb', region_name=Config.region_name)
 multiplayer = dynamodb.Table('multiplayer_input')
-# define multiplier table
-# define users table
+teams = dynamodb.Table('teams')
+# ToDo - Define multiplier table
 
 ################################################################################
 ##  ******************* RENDER PAGES WITH FLASK *******************
@@ -111,10 +109,17 @@ def input_form():
         form = InputForm()
         if form.validate_on_submit():
             flash('Submission: multiplayer={}'.format(form.multiplayer.data))
-            # ToDo - Write to DynamoDB
-            # if existing entry not in play and submission not in play
-            # Write new multiplayer table.put_item(Item={'week':viewWeek, 'team':'7', 'seed':'123', 'multiplayer':form.multiplayer.data})
+            # Write to DynamoDB
+
+            # Get teamID - ToDo: error handling if username not in DB
+            teamID = teams.scan(FilterExpression=Key('username').eq(session['username']))['Items'][0]['teamID']
+
+            # ToDo - Check if existing entry not in play and submission not in play
+
             # Write new multiplier
+            viewWeek = 10 # TEMPORARY ToDo: Pull this from current Week
+            multiplayer.put_item(Item={'week':viewWeek, 'team':teamID, 'seed':'123', 'multiplayer':form.multiplayer.data})
+
 
             return render_template('temp_redirect.html', username=session['username']) #redirect(url_for('temp_redirect'))
         return render_template('input_form.html', form=form, username=session['username']) # ToDo - Clean up this section
@@ -159,8 +164,8 @@ def cognito_response():
     access_token = response.json()['access_token']
 
     # Convert Token to User Info via Boto
-    client = boto3.client('cognito-idp')
-    user_info = client.get_user(AccessToken=access_token)
+    cognito_client = boto3.client('cognito-idp')
+    user_info = cognito_client.get_user(AccessToken=access_token)
     session['username'] = user_info['Username']
     print("Authenticated Username: {}".format(session['username']))
 
