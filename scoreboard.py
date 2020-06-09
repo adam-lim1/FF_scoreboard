@@ -111,14 +111,25 @@ def input_form():
             flash('Submission: multiplayer={}'.format(form.multiplayer.data))
             # Write to DynamoDB
 
+            viewWeek = 10 # TEMPORARY ToDo: Pull this from current Week
+
             # Get teamID - ToDo: error handling if username not in DB
             teamID = teams.scan(FilterExpression=Key('username').eq(session['username']))['Items'][0]['teamID']
 
             # ToDo - Check if existing entry not in play and submission not in play
+            existing_multiplayer = multiplayer.get_item(Key={'week':viewWeek, 'team':teamID})['Item']['multiplayer']
 
-            # Write new multiplier
-            viewWeek = 10 # TEMPORARY ToDo: Pull this from current Week
-            multiplayer.put_item(Item={'week':viewWeek, 'team':teamID, 'seed':'123', 'multiplayer':form.multiplayer.data})
+            if espn_stats.getPlayerLockStatus(existing_multiplayer) == False:
+                if espn_stats.getPlayerLockStatus(form.multiplayer.data) == False:
+                    # Success
+                    # Write new multiplier - ToDo - error handling
+                    multiplayer.put_item(Item={'week':viewWeek, 'team':teamID, 'seed':'123', 'multiplayer':form.multiplayer.data})
+
+                    return render_template('submission_success.html', username=session['username'], time=datetime.datetime.now()
+            else:
+                # multiplayer not valid
+                print('error - not valid')
+                )
 
 
             return render_template('temp_redirect.html', username=session['username']) #redirect(url_for('temp_redirect'))
