@@ -120,19 +120,15 @@ def input_form():
             existing_multiplayer = multiplayer.get_item(Key={'week':viewWeek, 'team':teamID})['Item']['multiplayer']
 
             if espn_stats.getPlayerLockStatus(existing_multiplayer) == False:
-                if espn_stats.getPlayerLockStatus(form.multiplayer.data) == False:
-                    # Success
+                if espn_stats.getPlayerLockStatus(form.multiplayer.data) == False: # Success
                     # Write new multiplier - ToDo - error handling
                     multiplayer.put_item(Item={'week':viewWeek, 'team':teamID, 'seed':'123', 'multiplayer':form.multiplayer.data})
-
-                    return render_template('submission_success.html', username=session['username'], time=datetime.datetime.now()
+                    return render_template('submission_success.html', username=session['username'], time=datetime.datetime.now())
+                else:
+                    return render_template('submission_fail.html', username=session['username'], time=datetime.datetime.now(), error='Multiplayer entry is not valid')
             else:
-                # multiplayer not valid
-                print('error - not valid')
-                )
+                return render_template('submission_fail.html', username=session['username'], time=datetime.datetime.now(), error='Existing multiplayer entry is already locked')
 
-
-            return render_template('temp_redirect.html', username=session['username']) #redirect(url_for('temp_redirect'))
         return render_template('input_form.html', form=form, username=session['username']) # ToDo - Clean up this section
 
     else: # Route to Cognito UI
@@ -140,9 +136,9 @@ def input_form():
         return redirect(url_for('authenticate'))
 
 # HTML landing page after input validated
-@app.route('/temp_redirect')
-def temp_redirect():
-    return render_template('temp_redirect.html')
+# @app.route('/temp_redirect')
+# def temp_redirect():
+#     return render_template('temp_redirect.html')
 
 ############ ROUTING FOR COGNITO LOGIN ##############
 # Route to Cognito UI
