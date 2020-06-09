@@ -8,6 +8,7 @@ import pandas as pd
 import numpy as np
 import random
 import boto3
+from boto3.dynamodb.conditions import Key 
 
 import helpers as helpers
 from config import Config
