@@ -35,6 +35,13 @@ espn_stats = espn(Config.leagueID, Config.year, Config.swid_cookie, Config.s2_co
 
 # ToDo - logic to map native username to teamID
 teamsDF = espn_stats.getTeamsKey()
+
+# Define AWS DynamoDB Resources
+dynamodb = boto3.resource('dynamodb', region_name="us-east-2")
+multiplayer = dynamodb.Table('multiplayer_input')
+# define multiplier table
+# define users table
+
 ################################################################################
 ##  ******************* RENDER PAGES WITH FLASK *******************
 ################################################################################
@@ -68,12 +75,10 @@ def weekGeneric_page(viewWeek):
     multiplier_df = pd.read_csv('sample_data/multipliers.csv')
     multipliers = multiplier_df.set_index(['Week', 'TeamID']).to_dict(orient='index')
     scoreboardDF['Multiplier'] = scoreboardDF['teamID'].apply(lambda x: multipliers[(viewWeek, x)]['Multiplier'])
+    # ToDo - Pull Multiplier from AWS
 
-    # LOOK UP MULTIPLAYER (BY WEEK/TEAM ID)
-    # Simulate Update via API - ToDo: Replace with DynamoDB Read API
-    multiplayer_df = pd.read_csv('sample_data/multiplayer_input.csv')
-    multiplayers = multiplayer_df.set_index(['Week', 'TeamID']).to_dict(orient='index')
-    scoreboardDF['Multiplayer'] = scoreboardDF['teamID'].apply(lambda x: multiplayers[(viewWeek, x)]['Multiplayer'])
+    # LOOK UP MULTIPLAYER (BY WEEK/TEAM ID) VIA AWS DYNAMO DB QUERY
+    scoreboardDF['Multiplayer'] = scoreboardDF['teamID'].apply(lambda x: multiplayer.get_item(Key={'week':int(viewWeek), 'team':str(x)})['Item']['multiplayer'])
 
     # GET PLAYER SCORES FOR WEEK (AND APPEND)
     playerScoresDF = espn_stats.getWeekPlayerScores(viewWeek)
@@ -106,6 +111,10 @@ def input_form():
         if form.validate_on_submit():
             flash('Submission: multiplayer={}'.format(form.multiplayer.data))
             # ToDo - Write to DynamoDB
+            # if existing entry not in play and submission not in play
+            # Write new multiplayer table.put_item(Item={'week':viewWeek, 'team':'7', 'seed':'123', 'multiplayer':form.multiplayer.data})
+            # Write new multiplier
+
             return render_template('temp_redirect.html', username=session['username']) #redirect(url_for('temp_redirect'))
         return render_template('input_form.html', form=form, username=session['username']) # ToDo - Clean up this section
 
