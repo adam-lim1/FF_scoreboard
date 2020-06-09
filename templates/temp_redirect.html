@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% block content %}
 
-<p> this page has the input data</p>
+<p> Hello, {{ username }}. This page has the input data</p>
 
 {% with messages = get_flashed_messages() %}
 {% if messages %}

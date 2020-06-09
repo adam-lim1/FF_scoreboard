@@ -1,4 +1,4 @@
-from flask import Flask, render_template, redirect, flash, url_for
+from flask import Flask, render_template, redirect, flash, url_for, request, session
 import datetime
 import requests
 import configparser
@@ -7,6 +7,7 @@ import pickle
 import pandas as pd
 import numpy as np
 import random
+import boto3
 
 import helpers as helpers
 from config import Config
@@ -19,14 +20,9 @@ app.config.from_object(Config)
 ################################################################################
 ##  ******************* GET CONFIG INFO *******************
 ################################################################################
-config = configparser.RawConfigParser()
-config.read('config.txt')
 
 # League Parameters
-multiplierList = [float(x) for x in config.get('League Parameters', 'multiplierList').split(', ')]
-
-# ESPN Parameters
-# Imported from config
+multiplierList = Config.multiplierList
 
 ################################################################################
 ##  ******************* GET DATA FROM GOOGLE/ESPN *******************
@@ -34,12 +30,18 @@ multiplierList = [float(x) for x in config.get('League Parameters', 'multiplierL
 
 initialTime=datetime.datetime.now()
 
-##  ******************* PULL MATCHUPS AND SCORING FROM ESPN *******************
 ## ******************* INSTANTIATE ESPN FF CLASS OBJECT *******************
 espn_stats = espn(Config.leagueID, Config.year, Config.swid_cookie, Config.s2_cookie)
 
 # ToDo - logic to map native username to teamID
 teamsDF = espn_stats.getTeamsKey()
+
+# Define AWS DynamoDB Resources
+dynamodb = boto3.resource('dynamodb', region_name="us-east-2")
+multiplayer = dynamodb.Table('multiplayer_input')
+# define multiplier table
+# define users table
+
 ################################################################################
 ##  ******************* RENDER PAGES WITH FLASK *******************
 ################################################################################
@@ -73,12 +75,10 @@ def weekGeneric_page(viewWeek):
     multiplier_df = pd.read_csv('sample_data/multipliers.csv')
     multipliers = multiplier_df.set_index(['Week', 'TeamID']).to_dict(orient='index')
     scoreboardDF['Multiplier'] = scoreboardDF['teamID'].apply(lambda x: multipliers[(viewWeek, x)]['Multiplier'])
+    # ToDo - Pull Multiplier from AWS
 
-    # LOOK UP MULTIPLAYER (BY WEEK/TEAM ID)
-    # Simulate Update via API - ToDo: Replace with DynamoDB Read API
-    multiplayer_df = pd.read_csv('sample_data/multiplayer_input.csv')
-    multiplayers = multiplayer_df.set_index(['Week', 'TeamID']).to_dict(orient='index')
-    scoreboardDF['Multiplayer'] = scoreboardDF['teamID'].apply(lambda x: multiplayers[(viewWeek, x)]['Multiplayer'])
+    # LOOK UP MULTIPLAYER (BY WEEK/TEAM ID) VIA AWS DYNAMO DB QUERY
+    scoreboardDF['Multiplayer'] = scoreboardDF['teamID'].apply(lambda x: multiplayer.get_item(Key={'week':int(viewWeek), 'team':str(x)})['Item']['multiplayer'])
 
     # GET PLAYER SCORES FOR WEEK (AND APPEND)
     playerScoresDF = espn_stats.getWeekPlayerScores(viewWeek)
@@ -104,14 +104,63 @@ def multiplier_page():
 
 @app.route('/input_form', methods=['GET', 'POST'])
 def input_form():
-    form = InputForm()
-    if form.validate_on_submit():
-        flash('Submission: user {}, multiplayer={}, seed={}'.format(
-            form.username.data, form.multiplayer.data, form.seed.data))
-        # ToDo - Write to DynamoDB
-        return redirect(url_for('temp_redirect'))
-    return render_template('input_form.html', title='Sign In', form=form)
+    # If user is authenticated, expose form
+    if 'username' in session:
+        print(session['username'])
+        form = InputForm()
+        if form.validate_on_submit():
+            flash('Submission: multiplayer={}'.format(form.multiplayer.data))
+            # ToDo - Write to DynamoDB
+            # if existing entry not in play and submission not in play
+            # Write new multiplayer table.put_item(Item={'week':viewWeek, 'team':'7', 'seed':'123', 'multiplayer':form.multiplayer.data})
+            # Write new multiplier
 
+            return render_template('temp_redirect.html', username=session['username']) #redirect(url_for('temp_redirect'))
+        return render_template('input_form.html', form=form, username=session['username']) # ToDo - Clean up this section
+
+    else: # Route to Cognito UI
+        print('Not Authenticated')
+        return redirect(url_for('authenticate'))
+
+# HTML landing page after input validated
 @app.route('/temp_redirect')
 def temp_redirect():
     return render_template('temp_redirect.html')
+
+############ ROUTING FOR COGNITO LOGIN ##############
+# Route to Cognito UI
+@app.route('/auth')
+def authenticate():
+    # AWS Cognito
+    return redirect("{cognito_url}/login?response_type=code&client_id={app_client_id}&redirect_uri={redirect_uri}"\
+            .format(cognito_url=Config.cognito_url, app_client_id=Config.app_client_id, redirect_uri=Config.redirect_uri))
+
+# Return from Cognito UI - Add username to session
+@app.route('/input_form_cognito', methods=['GET', 'POST'])
+def cognito_response():
+    access_code = request.args.get('code')
+
+    # Convert Access code to Token via TOKEN endpoint
+    # Reference: exchange_code_for_token function https://github.com/cgauge/Flask-AWSCognito/tree/6882a0c246dcc8da8e299c1e8b468ef5899bc373
+    # ToDo - add these to AWS class/Parameters
+    domain = Config.cognito_url
+    token_url = "{}/oauth2/token".format(domain)
+    data = {
+                "code": access_code,
+                "redirect_uri": Config.redirect_uri,
+                "client_id": Config.app_client_id,
+                "grant_type": "authorization_code",
+            }
+    headers = {} # Add b64 encoded client id : client secret here if needed
+    requests_client = requests.post
+
+    response = requests_client(token_url, data=data, headers=headers)
+    access_token = response.json()['access_token']
+
+    # Convert Token to User Info via Boto
+    client = boto3.client('cognito-idp')
+    user_info = client.get_user(AccessToken=access_token)
+    session['username'] = user_info['Username']
+    print("Authenticated Username: {}".format(session['username']))
+
+    return redirect(url_for('input_form'))
