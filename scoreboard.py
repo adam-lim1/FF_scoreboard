@@ -39,6 +39,7 @@ teamsDF = espn_stats.getTeamsKey()
 dynamodb = boto3.resource('dynamodb', region_name=Config.region_name)
 multiplayer = dynamodb.Table('multiplayer_input')
 teams = dynamodb.Table('teams')
+multiplier = dynamodb.Table('multiplier_input')
 # ToDo - Define multiplier table
 
 ################################################################################
@@ -71,10 +72,9 @@ def weekGeneric_page(viewWeek):
     # LOOKUP MULTIPLIER (BY WEEK/TEAM ID)
     # Simulate Update via API - ToDo: Replace with DynamoDB Read API
     # ToDo - Need to handle if player doesn't make entry (nulls)
-    multiplier_df = pd.read_csv('sample_data/multipliers.csv')
-    multipliers = multiplier_df.set_index(['Week', 'TeamID']).to_dict(orient='index')
-    scoreboardDF['Multiplier'] = scoreboardDF['teamID'].apply(lambda x: multipliers[(viewWeek, x)]['Multiplier'])
-    # ToDo - Pull Multiplier from AWS
+    # Pull Multiplier from AWS
+    scoreboardDF['Multiplier'] = scoreboardDF['teamID'].apply(lambda x: float(multiplier.get_item(Key={'week':str(viewWeek), 'teamID':str(x)})['Item']['Multiplier']))
+
 
     # LOOK UP MULTIPLAYER (BY WEEK/TEAM ID) VIA AWS DYNAMO DB QUERY
     scoreboardDF['Multiplayer'] = scoreboardDF['teamID'].apply(lambda x: multiplayer.get_item(Key={'week':int(viewWeek), 'team':str(x)})['Item']['multiplayer'])
@@ -115,7 +115,7 @@ def input_form():
 
             # Get teamID - ToDo: error handling if username not in DB
             teamID = teams.get_item(Key={'username':session['username']})['Item']['teamID']
-            
+
             # ToDo - Check if existing entry not in play and submission not in play
             existing_multiplayer = multiplayer.get_item(Key={'week':viewWeek, 'team':teamID})['Item']['multiplayer']
 
