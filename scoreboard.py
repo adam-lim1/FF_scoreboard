@@ -97,8 +97,19 @@ def weekGeneric_page(viewWeek):
 def multiplier_page():
 
     # ToDo - Treatment to not reval multiplier if gametime has not yet passed
+    multiplier_dict = {}
+
+    for id in teamsDF.index:
+        if id != -999:
+            response = multiplier.scan(FilterExpression=Key('teamID').eq(str(id)))
+            multiplier_history = [(x['week'], x['Multiplier']) for x in response['Items']]
+            multiplier_history.sort(key=lambda x: int(x[0]))
+
+            multiplier_dict[teamsDF.loc[id]['FullTeamName']] = multiplier_history
+    # print(multiplier_dict)
 
     return render_template('multipliers_GS.html',
+                            multiplier_dict=multiplier_dict,
                             time=datetime.datetime.now())
 
 
