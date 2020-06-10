@@ -14,14 +14,14 @@ def create_table(table_name, dynamodb=None):
     response = client.create_table(
       AttributeDefinitions=[
           {
-              'AttributeName': 'teamID',
+              'AttributeName': 'username',
               'AttributeType': 'S'
           }
       ],
       TableName= table_name,
       KeySchema=[
           {
-              'AttributeName': 'teamID',
+              'AttributeName': 'username',
               'KeyType': 'HASH'
           }
       ],
@@ -51,4 +51,4 @@ if __name__ == '__main__':
     print('Inserting data into Teams table')
     time.sleep(5)
     table = dynamodb.Table(table_name)
-    table.put_item(Item={'teamID':str(8), 'username':'adam'})
+    table.put_item(Item={'username':'adam', 'teamID':str(8)})

@@ -114,8 +114,8 @@ def input_form():
             viewWeek = 10 # TEMPORARY ToDo: Pull this from current Week
 
             # Get teamID - ToDo: error handling if username not in DB
-            teamID = teams.scan(FilterExpression=Key('username').eq(session['username']))['Items'][0]['teamID']
-
+            teamID = teams.get_item(Key={'username':session['username']})['Item']['teamID']
+            
             # ToDo - Check if existing entry not in play and submission not in play
             existing_multiplayer = multiplayer.get_item(Key={'week':viewWeek, 'team':teamID})['Item']['multiplayer']
 
