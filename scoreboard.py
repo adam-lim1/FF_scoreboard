@@ -73,6 +73,7 @@ def weekGeneric_page(viewWeek):
     # Simulate Update via API - ToDo: Replace with DynamoDB Read API
     # ToDo - Need to handle if player doesn't make entry (nulls)
     # Pull Multiplier from AWS
+    # ToDo - Do not show if player not in play
     scoreboardDF['Multiplier'] = scoreboardDF['teamID'].apply(lambda x: float(multiplier.get_item(Key={'week':str(viewWeek), 'teamID':str(x)})['Item']['Multiplier']))
 
 
@@ -111,18 +112,23 @@ def input_form():
             flash('Submission: multiplayer={}'.format(form.multiplayer.data))
             # Write to DynamoDB
 
-            viewWeek = 10 # TEMPORARY ToDo: Pull this from current Week
+            currentWeek = 10 # TEMPORARY ToDo: Pull this from current Week
 
             # Get teamID - ToDo: error handling if username not in DB
             teamID = teams.get_item(Key={'username':session['username']})['Item']['teamID']
 
             # ToDo - Check if existing entry not in play and submission not in play
-            existing_multiplayer = multiplayer.get_item(Key={'week':viewWeek, 'team':teamID})['Item']['multiplayer']
+            existing_multiplayer = multiplayer.get_item(Key={'week':currentWeek, 'team':teamID})['Item']['multiplayer']
 
             if espn_stats.getPlayerLockStatus(existing_multiplayer) == False:
                 if espn_stats.getPlayerLockStatus(form.multiplayer.data) == False: # Success
-                    # Write new multiplier - ToDo - error handling
-                    multiplayer.put_item(Item={'week':viewWeek, 'team':teamID, 'seed':'123', 'multiplayer':form.multiplayer.data})
+                    # ToDo - Check that player is on roster?
+                    # Write new multiplayer - ToDo - error handling
+                    multiplayer.put_item(Item={'week':currentWeek, 'team':teamID, 'seed':'123', 'multiplayer':form.multiplayer.data})
+
+                    # write multiplier
+                    helpers.updateMultiplier(currentWeek=currentWeek, teamID=teamID, multiplier_db_table=multiplier)
+
                     return render_template('submission_success.html', username=session['username'], time=datetime.datetime.now())
                 else:
                     return render_template('submission_fail.html', username=session['username'], time=datetime.datetime.now(), error='Multiplayer entry is not valid')
@@ -134,11 +140,6 @@ def input_form():
     else: # Route to Cognito UI
         print('Not Authenticated')
         return redirect(url_for('authenticate'))
-
-# HTML landing page after input validated
-# @app.route('/temp_redirect')
-# def temp_redirect():
-#     return render_template('temp_redirect.html')
 
 ############ ROUTING FOR COGNITO LOGIN ##############
 # Route to Cognito UI
