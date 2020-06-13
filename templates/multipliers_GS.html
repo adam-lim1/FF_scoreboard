@@ -30,9 +30,18 @@ Last Updated: {{ time }}
   </tr>
 
   {% for team in multiplier_dict.keys() %}
-    <tr> <td>{{ team }}</td>  {% for pair in multiplier_dict[team] %} <td> {{ pair[1] }} </td>{% endfor %}</tr>
+    <tr>
+      <td>{{ team }}</td>
+      {% for pair in multiplier_dict[team] %}
+        {% if pair[0] < currentWeek %}
+          <td style="background-color:{{ color_dict[pair[1]] }}";> {{ pair[1] }} </td>
+        {% else %}
+          <td> </td>
+        {% endif %}
+      {% endfor %}
+    </tr>
   {% endfor %}
-  
+
 </table>
 
 

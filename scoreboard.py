@@ -102,14 +102,24 @@ def multiplier_page():
     for id in teamsDF.index:
         if id != -999:
             response = multiplier.scan(FilterExpression=Key('teamID').eq(str(id)))
-            multiplier_history = [(x['week'], x['Multiplier']) for x in response['Items']]
+            multiplier_history = [(int(x['week']), x['Multiplier']) for x in response['Items']]
             multiplier_history.sort(key=lambda x: int(x[0]))
+            #print(multiplier_history)
 
             multiplier_dict[teamsDF.loc[id]['FullTeamName']] = multiplier_history
-    # print(multiplier_dict)
+
+            # ToDo - Logic for how to get list of gradient colors for n week season
+            colors = ['#ff0000', '#ff1f1f', '#ff3f3f', '#ff5f5f', '#ff7f7f', '#ff9f9f', '#ffbfbf', '#ffdfdf', '#ffffff',
+            '#dfefdf', '#bfdfbf', '#9fcf9f', '#7fbf7f', '#5faf5f', '#3f9f3f', '#1f8f1f', '#008000']
+            multiplier_list = [str(x) for x in Config.multiplierList]
+            color_dict = dict(zip(multiplier_list, colors))
+
+            currentWeek = espn_stats.getCurrentWeek()
 
     return render_template('multipliers_GS.html',
                             multiplier_dict=multiplier_dict,
+                            color_dict=color_dict,
+                            currentWeek=currentWeek,
                             time=datetime.datetime.now())
 
 
