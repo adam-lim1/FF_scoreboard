@@ -9,8 +9,10 @@ import numpy as np
 import random
 import boto3
 from boto3.dynamodb.conditions import Key
+import math
 
 import helpers as helpers
+import colors as colors
 from config import Config
 from forms import InputForm
 from espn import espn
@@ -96,20 +98,42 @@ def weekGeneric_page(viewWeek):
 @app.route('/MultiplierResults')
 def multiplier_page():
 
-    # ToDo - Treatment to not reval multiplier if gametime has not yet passed
+    # Get current week
+    currentWeek = espn_stats.getCurrentWeek()
+
+    # Map Multipliers to Gradient colors - Create dictionary key
+    list_len = len(Config.multiplierList)
+    gradient1_len = math.floor((list_len + 1) / 2)
+    gradient2_len = list_len + 1 - gradient1_len
+    gradient1 = colors.linear_gradient(start_hex="#ff0000", finish_hex="#ffffff", n=gradient1_len)['hex'] # Red -> White
+    gradient2 = colors.linear_gradient(start_hex="#ffffff", finish_hex="#008000", n=gradient2_len)['hex'] # White -> Green
+
+    color_gradient = []
+    for i in gradient1 + gradient2:
+        if i not in color_gradient:
+            color_gradient.append(i)
+
+    multiplier_list = [str(x) for x in Config.multiplierList]
+    color_dict = dict(zip(multiplier_list, color_gradient))
+
+    # Create dict of past multipliers for each team
     multiplier_dict = {}
 
     for id in teamsDF.index:
         if id != -999:
+            # Get tuples of (week, multiplier)
             response = multiplier.scan(FilterExpression=Key('teamID').eq(str(id)))
-            multiplier_history = [(x['week'], x['Multiplier']) for x in response['Items']]
+            multiplier_history = [(int(x['week']), x['Multiplier']) for x in response['Items']]
             multiplier_history.sort(key=lambda x: int(x[0]))
+            #print(multiplier_history)
 
+            # Add list of past multipliers to dict
             multiplier_dict[teamsDF.loc[id]['FullTeamName']] = multiplier_history
-    # print(multiplier_dict)
 
     return render_template('multipliers_GS.html',
                             multiplier_dict=multiplier_dict,
+                            color_dict=color_dict,
+                            currentWeek=currentWeek,
                             time=datetime.datetime.now())
 
 
