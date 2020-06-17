@@ -28,7 +28,7 @@ app.config.from_object(Config)
 multiplierList = Config.multiplierList
 
 ################################################################################
-##  ******************* GET DATA FROM GOOGLE/ESPN *******************
+##  ******************* GET DATA FROM ESPN *******************
 ################################################################################
 
 initialTime=datetime.datetime.now()
@@ -75,7 +75,6 @@ def weekGeneric_page(viewWeek):
     # ToDo - Need to handle if player doesn't make entry (nulls)
     # Pull Multiplier from AWS
     # ToDo - Do not show if player not in play
-
 
     scoreboardDF['Multiplier'] = scoreboardDF['teamID'].apply(lambda x: float(multiplier.get_item(Key={'week':str(viewWeek), 'teamID':str(x)})['Item']['Multiplier']))
 
