@@ -42,7 +42,6 @@ dynamodb = boto3.resource('dynamodb', region_name=Config.region_name)
 multiplayer = dynamodb.Table('multiplayer_input')
 teams = dynamodb.Table('teams')
 multiplier = dynamodb.Table('multiplier_input')
-# ToDo - Define multiplier table
 
 ################################################################################
 ##  ******************* RENDER PAGES WITH FLASK *******************
@@ -76,11 +75,15 @@ def weekGeneric_page(viewWeek):
     # ToDo - Need to handle if player doesn't make entry (nulls)
     # Pull Multiplier from AWS
     # ToDo - Do not show if player not in play
+
+
     scoreboardDF['Multiplier'] = scoreboardDF['teamID'].apply(lambda x: float(multiplier.get_item(Key={'week':str(viewWeek), 'teamID':str(x)})['Item']['Multiplier']))
 
-
     # LOOK UP MULTIPLAYER (BY WEEK/TEAM ID) VIA AWS DYNAMO DB QUERY
-    scoreboardDF['Multiplayer'] = scoreboardDF['teamID'].apply(lambda x: multiplayer.get_item(Key={'week':int(viewWeek), 'team':str(x)})['Item']['multiplayer'])
+    scoreboardDF['Multiplayer'] = scoreboardDF['teamID'].apply(lambda x:
+        multiplayer.get_item(Key={'week':int(viewWeek), 'team':str(x)})
+        .get('Item', {})
+        .get('multiplayer'))
 
     # GET PLAYER SCORES FOR WEEK (AND APPEND)
     playerScoresDF = espn_stats.getWeekPlayerScores(viewWeek)
