@@ -104,37 +104,45 @@ body {
     text-align: left;
     font-weight: normal;
   }
+  tr.noBorder td {
+  border: 0;
+}
 </style>
 
 <!-- Body of Scoreboards -->
-{% for n in scoreboardDict.keys() %}
-<div style="padding-left: 10px;">
-<b> Matchup {{ n }} </b>
-<table>
-  <tr>
-    <th bgcolor="#4CAF50"><font color="white"> Team </font></th>
-    <th bgcolor="#4CAF50"><font color="white"> Multiplayer </font></th>
-    <th bgcolor="#4CAF50"><font color="white"> Multiplier </font></th>
-    <th bgcolor="#4CAF50"><font color="white"> Score Adjustment </font></th>
-    <th bgcolor="#4CAF50"><font color="white"> Overall Score (Adjusted) </font></th>
-  </tr>
-  <tr>
-    <td>{{ scoreboardDict[n]['Home']['Team'] }}</td>
-    <td>{{ scoreboardDict[n]['Home']['Multiplayer'] }}</td>
-    <td>{{ scoreboardDict[n]['Home']['Multiplier'] }}</td>
-    <td>{{ scoreboardDict[n]['Home']['Score Adjustment'] }}</td>
-    <td>{{ scoreboardDict[n]['Home']['Adjusted Score'] }}</td>
-  </tr>
-  <tr>
-    <td>{{ scoreboardDict[n]['Away']['Team'] }}</td>
-    <td>{{ scoreboardDict[n]['Away']['Multiplayer'] }}</td>
-    <td>{{ scoreboardDict[n]['Away']['Multiplier'] }}</td>
-    <td>{{ scoreboardDict[n]['Away']['Score Adjustment'] }}</td>
-    <td>{{ scoreboardDict[n]['Away']['Adjusted Score'] }}</td>
-  </tr>
-</table>
+
+<div style="padding-left: 10px; padding-right: 10px;">
+  <table>
+    {% for n in scoreboardDict.keys() %}
+      <tr class="noBorder">
+        <td colspan="5"><b>Matchup {{ n }}</b></td>
+      </tr>
+      <tr>
+        <th bgcolor="#4CAF50"><font color="white"> Team </font></th>
+        <th bgcolor="#4CAF50"><font color="white"> Multiplayer </font></th>
+        <th bgcolor="#4CAF50"><font color="white"> Multiplier </font></th>
+        <th bgcolor="#4CAF50"><font color="white"> Score Adjustment </font></th>
+        <th bgcolor="#4CAF50"><font color="white"> Overall Score (Adjusted) </font></th>
+      </tr>
+      <tr>
+        <td>{{ scoreboardDict[n]['Home']['Team'] }}</td>
+        <td>{{ scoreboardDict[n]['Home']['Multiplayer'] }}</td>
+        <td>{{ scoreboardDict[n]['Home']['Multiplier'] }}</td>
+        <td>{{ scoreboardDict[n]['Home']['Score Adjustment'] }}</td>
+        <td>{{ scoreboardDict[n]['Home']['Adjusted Score'] }}</td>
+      </tr>
+      <tr>
+        <td>{{ scoreboardDict[n]['Away']['Team'] }}</td>
+        <td>{{ scoreboardDict[n]['Away']['Multiplayer'] }}</td>
+        <td>{{ scoreboardDict[n]['Away']['Multiplier'] }}</td>
+        <td>{{ scoreboardDict[n]['Away']['Score Adjustment'] }}</td>
+        <td>{{ scoreboardDict[n]['Away']['Adjusted Score'] }}</td>
+      </tr>
+      <tr class="noBorder">
+        <td colspan="5"> </td>
+      </tr>
+    {% endfor %}
+  </table>
 </div>
-<br></br>
-{% endfor %}
 
 {% endblock %}
