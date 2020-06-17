@@ -28,12 +28,12 @@ app.config.from_object(Config)
 multiplierList = Config.multiplierList
 
 ################################################################################
-##  ******************* GET DATA FROM ESPN *******************
+##  ******************* GET DATA FROM ESPN/AWS *******************
 ################################################################################
 
 initialTime=datetime.datetime.now()
 
-## ******************* INSTANTIATE ESPN FF CLASS OBJECT *******************
+## Instantiate ESPN FF class object
 espn_stats = espn(Config.leagueID, Config.year, Config.swid_cookie, Config.s2_cookie)
 teamsDF = espn_stats.getTeamsKey()
 
@@ -71,11 +71,7 @@ def weekGeneric_page(viewWeek):
     scoreboardDF = scoreboardDF.rename(columns={'FullTeamName':'Team'})
 
     # LOOKUP MULTIPLIER (BY WEEK/TEAM ID)
-    # Simulate Update via API - ToDo: Replace with DynamoDB Read API
-    # ToDo - Need to handle if player doesn't make entry (nulls)
     # Pull Multiplier from AWS
-    # ToDo - Do not show if player not in play
-
     scoreboardDF['Multiplier'] = scoreboardDF['teamID'].apply(lambda x: float(multiplier.get_item(Key={'week':str(viewWeek), 'teamID':str(x)})['Item']['Multiplier']))
 
     # LOOK UP MULTIPLAYER (BY WEEK/TEAM ID) VIA AWS DYNAMO DB QUERY
@@ -89,6 +85,7 @@ def weekGeneric_page(viewWeek):
 
     # JOIN
     adjustedScores = helpers.mergeScores(teamsDF, scoreboardDF, playerScoresDF)
+    adjustedScores = adjustedScores.round({'Actual':2, 'Adjustment':2, 'AdjustedScore':2}) # Round for scoreboard appearance
     scoreboardDict = helpers.scoresToDict(adjustedScores, int(teamsDF.shape[0]/2))
 
     print(scoreboardDict.keys())

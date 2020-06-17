@@ -46,7 +46,7 @@ def mergeScores(teamsDF, scoreboardDF, playerScoresDF):
     df = df.merge(playerScoresDF, left_on=['Week', 'teamID', 'Multiplayer'], right_on=["Week", 'Team ID', 'Player'], how='left')
     df = df[['Week', 'matchupID','home_away', 'Points', 'FullTeamName', 'Multiplayer', 'Multiplier', 'Actual']] # 'Timestamp',
 
-    df['Multiplier'] = np.where(df['Actual'].isnull()==True, None, df['Multiplier']) # Adjust non-locked multipliers here
+    df['Multiplier'] = np.where(df['Actual'].isnull()==True, np.nan, df['Multiplier']) # Adjust non-locked multipliers here
     df['Adjustment'] = -1*(1-df['Multiplier'])*df['Actual']
     df['AdjustedScore'] = df['Adjustment'] + df['Points']
     df['AdjustedScore'] = np.where(df['AdjustedScore'].isnull()==True, df['Points'], df['AdjustedScore'])
