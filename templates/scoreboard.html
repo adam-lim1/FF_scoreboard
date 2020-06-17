@@ -75,7 +75,7 @@ body {
 }
 
 </style>
-<div id="main">
+<div id="main" style="padding-left: 10px;">
 <h2 class="header-inline"> SCOREBOARD - {{ input1 }}</h2>
 <div class="dropdown">
   <button class="dropbtn">Select Week</button>
@@ -111,6 +111,7 @@ body {
 <style>
   table {
     border-collapse: collapse;
+    padding-left: 100px;
   }
   th, td {
     border: 1px solid black;
@@ -121,8 +122,8 @@ body {
 </style>
 
 <!-- Body of Scoreboards -->
-
 {% for n in scoreboardDict.keys() %}
+<div style="padding-left: 10px;">
 <b> Matchup {{ n }} </b>
 <table>
   <tr>
@@ -147,6 +148,7 @@ body {
     <td>{{ scoreboardDict[n]['Away']['Adjusted Score'] }}</td>
   </tr>
 </table>
+</div>
 <br></br>
 {% endfor %}
 
