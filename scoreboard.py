@@ -8,8 +8,11 @@ import pandas as pd
 import numpy as np
 import random
 import boto3
+from boto3.dynamodb.conditions import Key
+import math
 
 import helpers as helpers
+import colors as colors
 from config import Config
 from forms import InputForm
 from espn import espn
@@ -32,15 +35,13 @@ initialTime=datetime.datetime.now()
 
 ## ******************* INSTANTIATE ESPN FF CLASS OBJECT *******************
 espn_stats = espn(Config.leagueID, Config.year, Config.swid_cookie, Config.s2_cookie)
-
-# ToDo - logic to map native username to teamID
 teamsDF = espn_stats.getTeamsKey()
 
 # Define AWS DynamoDB Resources
-dynamodb = boto3.resource('dynamodb', region_name="us-east-2")
+dynamodb = boto3.resource('dynamodb', region_name=Config.region_name)
 multiplayer = dynamodb.Table('multiplayer_input')
-# define multiplier table
-# define users table
+teams = dynamodb.Table('teams')
+multiplier = dynamodb.Table('multiplier_input')
 
 ################################################################################
 ##  ******************* RENDER PAGES WITH FLASK *******************
@@ -72,13 +73,17 @@ def weekGeneric_page(viewWeek):
     # LOOKUP MULTIPLIER (BY WEEK/TEAM ID)
     # Simulate Update via API - ToDo: Replace with DynamoDB Read API
     # ToDo - Need to handle if player doesn't make entry (nulls)
-    multiplier_df = pd.read_csv('sample_data/multipliers.csv')
-    multipliers = multiplier_df.set_index(['Week', 'TeamID']).to_dict(orient='index')
-    scoreboardDF['Multiplier'] = scoreboardDF['teamID'].apply(lambda x: multipliers[(viewWeek, x)]['Multiplier'])
-    # ToDo - Pull Multiplier from AWS
+    # Pull Multiplier from AWS
+    # ToDo - Do not show if player not in play
+
+
+    scoreboardDF['Multiplier'] = scoreboardDF['teamID'].apply(lambda x: float(multiplier.get_item(Key={'week':str(viewWeek), 'teamID':str(x)})['Item']['Multiplier']))
 
     # LOOK UP MULTIPLAYER (BY WEEK/TEAM ID) VIA AWS DYNAMO DB QUERY
-    scoreboardDF['Multiplayer'] = scoreboardDF['teamID'].apply(lambda x: multiplayer.get_item(Key={'week':int(viewWeek), 'team':str(x)})['Item']['multiplayer'])
+    scoreboardDF['Multiplayer'] = scoreboardDF['teamID'].apply(lambda x:
+        multiplayer.get_item(Key={'week':int(viewWeek), 'team':str(x)})
+        .get('Item', {})
+        .get('multiplayer'))
 
     # GET PLAYER SCORES FOR WEEK (AND APPEND)
     playerScoresDF = espn_stats.getWeekPlayerScores(viewWeek)
@@ -96,9 +101,42 @@ def weekGeneric_page(viewWeek):
 @app.route('/MultiplierResults')
 def multiplier_page():
 
-    # ToDo - Treatment to not reval multiplier if gametime has not yet passed
+    # Get current week
+    currentWeek = espn_stats.getCurrentWeek()
+
+    # Map Multipliers to Gradient colors - Create dictionary key
+    list_len = len(Config.multiplierList)
+    gradient1_len = math.floor((list_len + 1) / 2)
+    gradient2_len = list_len + 1 - gradient1_len
+    gradient1 = colors.linear_gradient(start_hex="#ff0000", finish_hex="#ffffff", n=gradient1_len)['hex'] # Red -> White
+    gradient2 = colors.linear_gradient(start_hex="#ffffff", finish_hex="#008000", n=gradient2_len)['hex'] # White -> Green
+
+    color_gradient = []
+    for i in gradient1 + gradient2:
+        if i not in color_gradient:
+            color_gradient.append(i)
+
+    multiplier_list = [str(x) for x in Config.multiplierList]
+    color_dict = dict(zip(multiplier_list, color_gradient))
+
+    # Create dict of past multipliers for each team
+    multiplier_dict = {}
+
+    for id in teamsDF.index:
+        if id != -999:
+            # Get tuples of (week, multiplier)
+            response = multiplier.scan(FilterExpression=Key('teamID').eq(str(id)))
+            multiplier_history = [(int(x['week']), x['Multiplier']) for x in response['Items']]
+            multiplier_history.sort(key=lambda x: int(x[0]))
+            #print(multiplier_history)
+
+            # Add list of past multipliers to dict
+            multiplier_dict[teamsDF.loc[id]['FullTeamName']] = multiplier_history
 
     return render_template('multipliers_GS.html',
+                            multiplier_dict=multiplier_dict,
+                            color_dict=color_dict,
+                            currentWeek=currentWeek,
                             time=datetime.datetime.now())
 
 
@@ -110,22 +148,36 @@ def input_form():
         form = InputForm()
         if form.validate_on_submit():
             flash('Submission: multiplayer={}'.format(form.multiplayer.data))
-            # ToDo - Write to DynamoDB
-            # if existing entry not in play and submission not in play
-            # Write new multiplayer table.put_item(Item={'week':viewWeek, 'team':'7', 'seed':'123', 'multiplayer':form.multiplayer.data})
-            # Write new multiplier
+            # Write to DynamoDB
 
-            return render_template('temp_redirect.html', username=session['username']) #redirect(url_for('temp_redirect'))
+            currentWeek = 10 # TEMPORARY ToDo: Pull this from current Week
+
+            # Get teamID - ToDo: error handling if username not in DB
+            teamID = teams.get_item(Key={'username':session['username']})['Item']['teamID']
+
+            # ToDo - Check if existing entry not in play and submission not in play
+            existing_multiplayer = multiplayer.get_item(Key={'week':currentWeek, 'team':teamID})['Item']['multiplayer']
+
+            if espn_stats.getPlayerLockStatus(existing_multiplayer) == False:
+                if espn_stats.getPlayerLockStatus(form.multiplayer.data) == False: # Success
+                    # ToDo - Check that player is on roster?
+                    # Write new multiplayer - ToDo - error handling
+                    multiplayer.put_item(Item={'week':currentWeek, 'team':teamID, 'seed':'123', 'multiplayer':form.multiplayer.data})
+
+                    # write multiplier
+                    helpers.updateMultiplier(currentWeek=currentWeek, teamID=teamID, multiplier_db_table=multiplier)
+
+                    return render_template('submission_success.html', username=session['username'], time=datetime.datetime.now())
+                else:
+                    return render_template('submission_fail.html', username=session['username'], time=datetime.datetime.now(), error='Multiplayer entry is not valid')
+            else:
+                return render_template('submission_fail.html', username=session['username'], time=datetime.datetime.now(), error='Existing multiplayer entry is already locked')
+
         return render_template('input_form.html', form=form, username=session['username']) # ToDo - Clean up this section
 
     else: # Route to Cognito UI
         print('Not Authenticated')
         return redirect(url_for('authenticate'))
-
-# HTML landing page after input validated
-@app.route('/temp_redirect')
-def temp_redirect():
-    return render_template('temp_redirect.html')
 
 ############ ROUTING FOR COGNITO LOGIN ##############
 # Route to Cognito UI
@@ -158,8 +210,8 @@ def cognito_response():
     access_token = response.json()['access_token']
 
     # Convert Token to User Info via Boto
-    client = boto3.client('cognito-idp')
-    user_info = client.get_user(AccessToken=access_token)
+    cognito_client = boto3.client('cognito-idp')
+    user_info = cognito_client.get_user(AccessToken=access_token)
     session['username'] = user_info['Username']
     print("Authenticated Username: {}".format(session['username']))
 

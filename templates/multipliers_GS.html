@@ -10,14 +10,39 @@ Last Updated: {{ time }}
 <br></br>
 <br></br>
 
-<!-- <div id="Container"
- style="padding-bottom:56.25%; position:relative; display:block; width: 100%">
- <iframe id="ViostreamIframe"
-  width="100%" height="60%"
-  src="https://docs.google.com/spreadsheets/d/e/2PACX-1vSKeeF0o9-dahv2kXy-i6TQCe9SpNxYeQYCWttqrEsyDrBgDVJkLoQdukg0Afe-Sge3c0cH0RHSjj3S/pubhtml?gid=814040496&amp;single=true&amp;widget=true&amp;headers=false"
+<style>
+  table {
+    border-collapse: collapse;
+  }
+  th, td {
+    border: 1px solid black;
+    padding: 10px;
+    text-align: left;
+    font-weight: normal;
+  }
+</style>
 
-  frameborder="0" allowfullscreen=""
-  style="position:absolute; top:0; left: 0"></iframe>
-</div> -->
+
+<table>
+  <tr>
+    <th bgcolor="#4CAF50"><font color="white"> Team </font></th>
+    {% for week_num in range(1,17) %} <th bgcolor="#4CAF50"><font color="white"> Week {{week_num}} </font></th> {% endfor %}
+  </tr>
+
+  {% for team in multiplier_dict.keys() %}
+    <tr>
+      <td>{{ team }}</td>
+      {% for pair in multiplier_dict[team] %}
+        {% if pair[0] < currentWeek %}
+          <td style="background-color:{{ color_dict[pair[1]] }}";> {{ pair[1] }} </td>
+        {% else %}
+          <td> </td>
+        {% endif %}
+      {% endfor %}
+    </tr>
+  {% endfor %}
+
+</table>
+
 
 {% endblock %}

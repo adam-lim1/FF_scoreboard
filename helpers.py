@@ -7,44 +7,30 @@ import pandas as pd
 import numpy as np
 import random
 
+def updateMultiplier(currentWeek, teamID, multiplier_db_table):
+    now = datetime.datetime.now()
+    seed = hash((teamID, now))
+    random.seed(seed)
 
-def getMultipliers(sheetsDF, origMultiplierList, fillNullValue=1234):
-    '''
-    [TO BE COMPLETED]
-    :param sheetsDF (DataFrame): [TO BE COMPLETED]
-    :param origMultiplierLis (list): [TO BE COMPLETED]
-    :param fillNullValue (int): Default seed value if none provided (Default = 1234)
-    :return: [TO BE COMPLETED]
-    '''
+    if currentWeek > 1: # Week 2+
+        # Get multiplier info from previous week
+        response = multiplier_db_table.get_item(Key={'week':str(currentWeek-1), 'teamID':teamID})
+        last_multiplier = float(response['Item']['Multiplier'])
+        last_available = eval(response['Item']['Available Multipliers'])
+        availible_multipliers = [x for x in last_available if x != last_multiplier]
 
-    # ToDo: Complete function docstring
+    else: # Week 1
+        response = multiplier_db_table.get_item(Key={'week':str(currentWeek), 'teamID':teamID})
+        availible_multipliers = eval(response['Item']['Available Multipliers'])
 
-    ### CONVERT INFO TO SEEDS DF
-    seedsDF = sheetsDF.pivot(index='Team', columns='Week', values='Seed')
-    seedsDF = seedsDF.fillna(value=fillNullValue)
+    selected_multiplier = random.choice(availible_multipliers)
+    update_response = multiplier_db_table.put_item(Item={'week':str(currentWeek),
+                                'teamID': teamID,
+                                'Multiplier': str(selected_multiplier),
+                                'Available Multipliers': str(availible_multipliers),
+                                'Hash': seed})
+    return update_response
 
-    ### CONVERT SEEDS TO MULTIPLIERS
-    multiplierDict = {}
-    for team in list(seedsDF.index):
-        multiplierList = origMultiplierList.copy()
-
-        #### ToDo: INSERT FUNCTION TO SCRAMBLE SEEDS HERE
-        teamSeeds = list(seedsDF.loc[team])
-
-        teamMultipliers = []
-        for seed in teamSeeds:
-            random.seed(seed)
-            multiplier = random.choice(multiplierList)
-            multiplierList.remove(multiplier)
-            teamMultipliers.append(multiplier)
-        multiplierDict[team] = teamMultipliers
-        multiplierDF = pd.DataFrame.from_dict(multiplierDict, orient='index', columns=seedsDF.columns)
-
-        # Reverse Pivot to get dimensions of Team/Week per row
-        unstacked_multiplierDF = multiplierDF.unstack().reset_index().copy()
-        unstacked_multiplierDF = unstacked_multiplierDF.rename(columns={'level_1':'Team', 0:'Multiplier'})
-        #unstacked_multiplierDF['Select Week'] = unstacked_multiplierDF['Select Week'].apply(lambda x: x.split(' ')[1])
-    return multiplierDF, unstacked_multiplierDF
 
 def mergeScores(teamsDF, scoreboardDF, playerScoresDF):
     '''
