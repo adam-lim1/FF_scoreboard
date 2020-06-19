@@ -54,6 +54,7 @@ def home():
 @application.route('/scoreboard')
 def scoreboard_page():
     ## Find current week and redirect to there
+
     currentWeek = espn_stats.getCurrentWeek()
     currentWeek = str(currentWeek)
 
@@ -96,7 +97,7 @@ def weekGeneric_page(viewWeek):
 
 @application.route('/MultiplierResults')
 def multiplier_page():
-
+  
     # Get current week
     currentWeek = espn_stats.getCurrentWeek()
 
