@@ -1,0 +1,48 @@
+<!doctype html>
+
+{% extends "base.html" %}
+{% block nav_item_pastplayers %}active{% endblock nav_item_pastplayers %}
+{% block content %}
+
+<title> Fantasy Football Scoreboard </title>
+<h1>Hello, World!</h1>
+Last Updated: {{ time }}
+<br></br>
+<br></br>
+
+<style>
+  table {
+    border-collapse: collapse;
+  }
+  th, td {
+    border: 1px solid black;
+    padding: 10px;
+    text-align: left;
+    font-weight: normal;
+  }
+</style>
+
+
+<table>
+  <tr>
+    <th bgcolor="#4CAF50"><font color="white"> Team </font></th>
+    {% for week_num in range(1,17) %} <th bgcolor="#4CAF50"><font color="white"> Week {{week_num}} </font></th> {% endfor %}
+  </tr>
+
+  {% for team in multiplier_dict.keys() %}
+    <tr>
+      <td>{{ team }}</td>
+      {% for pair in multiplier_dict[team] %}
+        {% if pair[0] < currentWeek %}
+          <td style="background-color:{{ color_dict[pair[1]] }}";> {{ pair[1] }} </td>
+        {% else %}
+          <td> </td>
+        {% endif %}
+      {% endfor %}
+    </tr>
+  {% endfor %}
+
+</table>
+
+
+{% endblock %}

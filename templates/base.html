@@ -1,4 +1,6 @@
 <!doctype html>
+<html>
+
 <!-- ################## HEADER  ################## -->
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -12,6 +14,7 @@ body {
 .topnav {
   overflow: hidden;
   background-color: #333;
+  /* ToDo - Anchor navbar to top of screen */
 }
 
 .topnav a {
@@ -60,15 +63,18 @@ body {
   }
 }
 </style>
+
+<link rel="shortcut icon" href="{{ url_for('static', filename='FFL-square.png') }}">
 </head>
+
 <body>
 
 <div class="topnav" id="myTopnav">
-  <a href="/">Scoreboard</a>
-  <a href="/MultiplierResults" class="active">Past Multipliers</a>
-  <a href="https://forms.gle/mzkyp7uD4qa927NZA" target="_blank">Set Multiplayer</a>
-  <a href="https://docs.google.com/document/d/1j1L0CLqh3-m9AcnyiDmasLLbqKN89qSoWqiWPLfRlOg/edit" target="_blank">League Rules</a>
-  <a href="https://fantasy.espn.com/football/league/scoreboard?leagueId=758108" target="_blank">ESPN Scoreboard</a>
+  <a class="{% block nav_item_scoreboard %}{% endblock nav_item_scoreboard %}" href="/">Scoreboard</a>
+  <a class="{% block nav_item_pastplayers %}{% endblock nav_item_pastplayers %}" href="/MultiplierResults">Past Multipliers</a>
+  <a class="{% block nav_item_setplayer %}{% endblock nav_item_setplayer %}" href="/input_form">Set Multiplayer</a>
+  <a class="{% block nav_item_rules %}{% endblock nav_item_rules %}" href="https://docs.google.com/document/d/1j1L0CLqh3-m9AcnyiDmasLLbqKN89qSoWqiWPLfRlOg/edit" target="_blank">League Rules</a>
+  <a class="{% block nav_item_espn %}{% endblock nav_item_espn %}" href="https://fantasy.espn.com/football/league/scoreboard?leagueId=758108" target="_blank">ESPN Scoreboard</a>
   <a href="javascript:void(0);" class="icon" onclick="myFunction()">
     <i class="fa fa-bars"></i>
   </a>
@@ -86,25 +92,12 @@ function myFunction() {
 }
 </script>
 
-</body>
-
 <!-- ################## END HEADER  ################## -->
 
-
-
 <title> Fantasy Football Scoreboard </title>
-<h1>Hello, World!</h1>
-Last Updated: {{ time }}
-<br></br>
-<br></br>
 
+{% block content %}
+{% endblock %}
 
-<div id="Container"
- style="padding-bottom:56.25%; position:relative; display:block; width: 100%">
- <iframe id="ViostreamIframe"
-  width="100%" height="60%"
-  src="https://docs.google.com/spreadsheets/d/e/2PACX-1vSKeeF0o9-dahv2kXy-i6TQCe9SpNxYeQYCWttqrEsyDrBgDVJkLoQdukg0Afe-Sge3c0cH0RHSjj3S/pubhtml?gid=814040496&amp;single=true&amp;widget=true&amp;headers=false"
-
-  frameborder="0" allowfullscreen=""
-  style="position:absolute; top:0; left: 0"></iframe>
-</div>
+</body>
+</html>

@@ -1,115 +1,14 @@
 <!doctype html>
 
-<!-- ################## HEADER  ################## -->
-<head>
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-<style>
-body {
-  margin: 0;
-  font-family: Arial, Helvetica, sans-serif;
-}
-
-.topnav {
-  overflow: hidden;
-  background-color: #333;
-  /* ToDo - Anchor navbar to top of screen */
-}
-
-.topnav a {
-  float: left;
-  display: block;
-  color: #f2f2f2;
-  text-align: center;
-  padding: 14px 16px;
-  text-decoration: none;
-  font-size: 17px;
-}
-
-.topnav a:hover {
-  background-color: #ddd;
-  color: black;
-}
-
-.topnav a.active {
-  background-color: #4CAF50;
-  color: white;
-}
-
-.topnav .icon {
-  display: none;
-}
-
-@media screen and (max-width: 600px) {
-  .topnav a:not(:first-child) {display: none;}
-  .topnav a.icon {
-    float: right;
-    display: block;
-  }
-}
-
-@media screen and (max-width: 600px) {
-  .topnav.responsive {position: relative;}
-  .topnav.responsive .icon {
-    position: absolute;
-    right: 0;
-    top: 0;
-  }
-  .topnav.responsive a {
-    float: none;
-    display: block;
-    text-align: left;
-  }
-}
-</style>
-</head>
-<body>
-
-<div class="topnav" id="myTopnav">
-  <a href="/" class="active">Scoreboard</a>
-  <a href="/MultiplierResults">Past Multipliers</a>
-  <a href="https://forms.gle/mzkyp7uD4qa927NZA" target="_blank">Set Multiplayer</a>
-  <a href="https://docs.google.com/document/d/1j1L0CLqh3-m9AcnyiDmasLLbqKN89qSoWqiWPLfRlOg/edit" target="_blank">League Rules</a>
-  <a href="https://fantasy.espn.com/football/league/scoreboard?leagueId=758108" target="_blank">ESPN Scoreboard</a>
-  <a href="javascript:void(0);" class="icon" onclick="myFunction()">
-    <i class="fa fa-bars"></i>
-  </a>
-</div>
-
-
-<script>
-function myFunction() {
-  var x = document.getElementById("myTopnav");
-  if (x.className === "topnav") {
-    x.className += " responsive";
-  } else {
-    x.className = "topnav";
-  }
-}
-</script>
-
-</body>
-
-<!-- ################## END HEADER  ################## -->
-
-<title> Fantasy Football Scoreboard </title>
-
-<!-- FFL Image -->
-<!-- <style>
-.ffl{
-  font-size: 50px;
-  color: #E81A26;
-}
-</style>
-<h3 class="ffl"><img src="/static/FFL.JPG" vertical-align="middle">  Fun Fantasy League </h3> -->
+{% extends "base.html" %}
+{% block nav_item_scoreboard %}active{% endblock nav_item_scoreboard %}
+{% block content %}
 
 <div>
-  <img style="vertical-align:middle" src="/static/FFL.JPG">
+  <img style="vertical-align:middle; height:8em" src="/static/FFL-square.png">
   <span style="color:#E81A26; font-size:30px" >Fun Fantasy League </span>
 </div>
 <br></br>
-
-Last Updated: {{ time }}
 
 <!-- ################## SELECT WEEK BUTTON ################## -->
 <!-- ToDo - Incorporate this into nav bar -->
@@ -122,7 +21,6 @@ Last Updated: {{ time }}
   margin: 0;
     display: inline-block;
 }
-
 
 /* Style The Dropdown Button */
 .dropbtn {
@@ -177,29 +75,14 @@ body {
 }
 
 </style>
-<div id="main">
+<div id="main" style="padding-left: 10px;">
 <h2 class="header-inline"> SCOREBOARD - {{ input1 }}</h2>
 <div class="dropdown">
   <button class="dropbtn">Select Week</button>
   <div class="dropdown-content">
-    <a href="/scoreboard/week1">Week 1</a>
-    <a href="/scoreboard/week2">Week 2</a>
-    <a href="/scoreboard/week3">Week 3</a>
-    <a href="/scoreboard/week4">Week 4</a>
-    <a href="/scoreboard/week5">Week 5</a>
-    <a href="/scoreboard/week6">Week 6</a>
-    <a href="/scoreboard/week7">Week 7</a>
-    <a href="/scoreboard/week8">Week 8</a>
-    <a href="/scoreboard/week9">Week 9</a>
-    <a href="/scoreboard/week10">Week 10</a>
-    <a href="/scoreboard/week11">Week 11</a>
-    <a href="/scoreboard/week12">Week 12</a>
-    <a href="/scoreboard/week13">Week 13</a>
-    <a href="/scoreboard/week14">Week 14</a>
-    <a href="/scoreboard/week15">Week 15</a>
-    <a href="/scoreboard/week16">Week 16</a>
-    <a href="/scoreboard/week17">Week 17</a>
-
+    {% for week_num in range(1,18) %}
+    <a href="/scoreboard/week{{ week_num }}">Week {{ week_num }}</a>
+    {% endfor %}
   </div>
 </div>
 <br></br>
@@ -213,6 +96,7 @@ body {
 <style>
   table {
     border-collapse: collapse;
+    padding-left: 100px;
   }
   th, td {
     border: 1px solid black;
@@ -220,34 +104,45 @@ body {
     text-align: left;
     font-weight: normal;
   }
+  tr.noBorder td {
+  border: 0;
+}
 </style>
 
 <!-- Body of Scoreboards -->
 
-{% for n in scoreboardDict.keys() %}
-<b> Matchup {{ n }} </b>
-<table>
-  <tr>
-    <th bgcolor="#4CAF50"><font color="white"> Team </font></th>
-    <th bgcolor="#4CAF50"><font color="white"> Multiplayer </font></th>
-    <th bgcolor="#4CAF50"><font color="white"> Multiplier </font></th>
-    <th bgcolor="#4CAF50"><font color="white"> Score Adjustment </font></th>
-    <th bgcolor="#4CAF50"><font color="white"> Overall Score (Adjusted) </font></th>
-  </tr>
-  <tr>
-    <td>{{ scoreboardDict[n]['Home']['Team'] }}</td>
-    <td>{{ scoreboardDict[n]['Home']['Multiplayer'] }}</td>
-    <td>{{ scoreboardDict[n]['Home']['Multiplier'] }}</td>
-    <td>{{ scoreboardDict[n]['Home']['Score Adjustment'] }}</td>
-    <td>{{ scoreboardDict[n]['Home']['Adjusted Score'] }}</td>
-  </tr>
-  <tr>
-    <td>{{ scoreboardDict[n]['Away']['Team'] }}</td>
-    <td>{{ scoreboardDict[n]['Away']['Multiplayer'] }}</td>
-    <td>{{ scoreboardDict[n]['Away']['Multiplier'] }}</td>
-    <td>{{ scoreboardDict[n]['Away']['Score Adjustment'] }}</td>
-    <td>{{ scoreboardDict[n]['Away']['Adjusted Score'] }}</td>
-  </tr>
-</table>
-<br></br>
-{% endfor %}
+<div style="padding-left: 10px; padding-right: 10px;">
+  <table>
+    {% for n in scoreboardDict.keys() %}
+      <tr class="noBorder">
+        <td colspan="5"><b>Matchup {{ n }}</b></td>
+      </tr>
+      <tr>
+        <th bgcolor="#4CAF50"><font color="white"> Team </font></th>
+        <th bgcolor="#4CAF50"><font color="white"> Multiplayer </font></th>
+        <th bgcolor="#4CAF50"><font color="white"> Multiplier </font></th>
+        <th bgcolor="#4CAF50"><font color="white"> Score Adjustment </font></th>
+        <th bgcolor="#4CAF50"><font color="white"> Overall Score (Adjusted) </font></th>
+      </tr>
+      <tr>
+        <td>{{ scoreboardDict[n]['Home']['Team'] }}</td>
+        <td>{{ scoreboardDict[n]['Home']['Multiplayer'] }}</td>
+        <td>{{ scoreboardDict[n]['Home']['Multiplier'] }}</td>
+        <td>{{ scoreboardDict[n]['Home']['Score Adjustment'] }}</td>
+        <td>{{ scoreboardDict[n]['Home']['Adjusted Score'] }}</td>
+      </tr>
+      <tr>
+        <td>{{ scoreboardDict[n]['Away']['Team'] }}</td>
+        <td>{{ scoreboardDict[n]['Away']['Multiplayer'] }}</td>
+        <td>{{ scoreboardDict[n]['Away']['Multiplier'] }}</td>
+        <td>{{ scoreboardDict[n]['Away']['Score Adjustment'] }}</td>
+        <td>{{ scoreboardDict[n]['Away']['Adjusted Score'] }}</td>
+      </tr>
+      <tr class="noBorder">
+        <td colspan="5"> </td>
+      </tr>
+    {% endfor %}
+  </table>
+</div>
+
+{% endblock %}
