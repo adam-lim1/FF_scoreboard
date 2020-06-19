@@ -17,8 +17,8 @@ from config import Config
 from forms import InputForm
 from espn import espn
 
-app = Flask(__name__)
-app.config.from_object(Config)
+application = Flask(__name__)
+application.config.from_object(Config)
 
 ################################################################################
 ##  ******************* GET CONFIG INFO *******************
@@ -28,12 +28,12 @@ app.config.from_object(Config)
 multiplierList = Config.multiplierList
 
 ################################################################################
-##  ******************* GET DATA FROM GOOGLE/ESPN *******************
+##  ******************* GET DATA FROM ESPN/AWS *******************
 ################################################################################
 
 initialTime=datetime.datetime.now()
 
-## ******************* INSTANTIATE ESPN FF CLASS OBJECT *******************
+## Instantiate ESPN FF class object
 espn_stats = espn(Config.leagueID, Config.year, Config.swid_cookie, Config.s2_cookie)
 teamsDF = espn_stats.getTeamsKey()
 
@@ -47,11 +47,11 @@ multiplier = dynamodb.Table('multiplier_input')
 ##  ******************* RENDER PAGES WITH FLASK *******************
 ################################################################################
 
-@app.route('/')
+@application.route('/')
 def home():
     return redirect('/scoreboard')
 
-@app.route('/scoreboard')
+@application.route('/scoreboard')
 def scoreboard_page():
     ## Find current week and redirect to there
     currentWeek = espn_stats.getCurrentWeek()
@@ -60,7 +60,7 @@ def scoreboard_page():
     return redirect('/scoreboard/week{}'.format(currentWeek))
 
 ### Generic routing function to cover each week
-@app.route('/scoreboard/week<viewWeek>')
+@application.route('/scoreboard/week<viewWeek>')
 def weekGeneric_page(viewWeek):
 
     viewWeek = int(viewWeek)
@@ -71,12 +71,7 @@ def weekGeneric_page(viewWeek):
     scoreboardDF = scoreboardDF.rename(columns={'FullTeamName':'Team'})
 
     # LOOKUP MULTIPLIER (BY WEEK/TEAM ID)
-    # Simulate Update via API - ToDo: Replace with DynamoDB Read API
-    # ToDo - Need to handle if player doesn't make entry (nulls)
     # Pull Multiplier from AWS
-    # ToDo - Do not show if player not in play
-
-
     scoreboardDF['Multiplier'] = scoreboardDF['teamID'].apply(lambda x: float(multiplier.get_item(Key={'week':str(viewWeek), 'teamID':str(x)})['Item']['Multiplier']))
 
     # LOOK UP MULTIPLAYER (BY WEEK/TEAM ID) VIA AWS DYNAMO DB QUERY
@@ -90,6 +85,7 @@ def weekGeneric_page(viewWeek):
 
     # JOIN
     adjustedScores = helpers.mergeScores(teamsDF, scoreboardDF, playerScoresDF)
+    adjustedScores = adjustedScores.round({'Actual':2, 'Adjustment':2, 'AdjustedScore':2}) # Round for scoreboard appearance
     scoreboardDict = helpers.scoresToDict(adjustedScores, int(teamsDF.shape[0]/2))
 
     print(scoreboardDict.keys())
@@ -98,7 +94,7 @@ def weekGeneric_page(viewWeek):
                             scoreboardDict=scoreboardDict, # Team, Multiplayer, Multiplier, Score Adjustment, Adjusted Score
                             time=datetime.datetime.now())
 
-@app.route('/MultiplierResults')
+@application.route('/MultiplierResults')
 def multiplier_page():
 
     # Get current week
@@ -133,14 +129,14 @@ def multiplier_page():
             # Add list of past multipliers to dict
             multiplier_dict[teamsDF.loc[id]['FullTeamName']] = multiplier_history
 
-    return render_template('multipliers_GS.html',
+    return render_template('multiplier_results.html',
                             multiplier_dict=multiplier_dict,
                             color_dict=color_dict,
                             currentWeek=currentWeek,
                             time=datetime.datetime.now())
 
 
-@app.route('/input_form', methods=['GET', 'POST'])
+@application.route('/input_form', methods=['GET', 'POST'])
 def input_form():
     # If user is authenticated, expose form
     if 'username' in session:
@@ -152,10 +148,10 @@ def input_form():
 
             currentWeek = 10 # TEMPORARY ToDo: Pull this from current Week
 
-            # Get teamID - ToDo: error handling if username not in DB
+            # Get teamID
             teamID = teams.get_item(Key={'username':session['username']})['Item']['teamID']
 
-            # ToDo - Check if existing entry not in play and submission not in play
+            # Check if existing entry not in play and submission not in play. ToDo - Error handling if no entry
             existing_multiplayer = multiplayer.get_item(Key={'week':currentWeek, 'team':teamID})['Item']['multiplayer']
 
             if espn_stats.getPlayerLockStatus(existing_multiplayer) == False:
@@ -181,20 +177,19 @@ def input_form():
 
 ############ ROUTING FOR COGNITO LOGIN ##############
 # Route to Cognito UI
-@app.route('/auth')
+@application.route('/auth')
 def authenticate():
     # AWS Cognito
     return redirect("{cognito_url}/login?response_type=code&client_id={app_client_id}&redirect_uri={redirect_uri}"\
             .format(cognito_url=Config.cognito_url, app_client_id=Config.app_client_id, redirect_uri=Config.redirect_uri))
 
 # Return from Cognito UI - Add username to session
-@app.route('/input_form_cognito', methods=['GET', 'POST'])
+@application.route('/input_form_cognito', methods=['GET', 'POST'])
 def cognito_response():
     access_code = request.args.get('code')
 
     # Convert Access code to Token via TOKEN endpoint
     # Reference: exchange_code_for_token function https://github.com/cgauge/Flask-AWSCognito/tree/6882a0c246dcc8da8e299c1e8b468ef5899bc373
-    # ToDo - add these to AWS class/Parameters
     domain = Config.cognito_url
     token_url = "{}/oauth2/token".format(domain)
     data = {
@@ -216,3 +211,10 @@ def cognito_response():
     print("Authenticated Username: {}".format(session['username']))
 
     return redirect(url_for('input_form'))
+
+# run the app.
+if __name__ == "__main__":
+    # Setting debug to True enables debug output. This line should be
+    # removed before deploying a production app.
+    application.debug = False
+    application.run()
