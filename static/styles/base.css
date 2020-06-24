@@ -3,6 +3,11 @@ body {
   font-family: Arial, Helvetica, sans-serif;
 }
 
+.body-div {
+  padding-left: 25px;
+  padding-right: 25px;
+}
+
 /* ################## CSS FOR NAV BAR ################## */
 .topnav {
   overflow: hidden;
@@ -66,7 +71,7 @@ body {
     display: inline-block;
 }
 
-/* Style The Dropdown Button */
+/* ################## STYLE SCOREBOARD DROPDOWN BUTTON ################## */
 .dropbtn {
   background-color: #4CAF50;
   color: white;
@@ -114,6 +119,7 @@ body {
   background-color: #3e8e41;
 }
 
+/* ################## TABLE FORMATTING ################## */
 table {
   border-collapse: collapse;
   padding-left: 100px;

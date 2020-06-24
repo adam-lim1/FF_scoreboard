@@ -5,28 +5,15 @@
 {% block content %}
 
 <!-- <title> Fantasy Football Scoreboard </title> -->
-<style>
-  table {
-    border-collapse: collapse;
-  }
-  th, td {
-    border: 1px solid black;
-    padding: 10px;
-    text-align: left;
-    font-weight: normal;
-  }
-  .body-div {
-    padding-left: 25px;
-    padding-right: 25px;
-  }
-</style>
+<!-- <link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='styles/base.css') }}"> -->
+
 
 <div class="body-div">
   <h1>Hello, World!</h1>
   Last Updated: {{ time }}
   <br></br>
   <br></br>
-  
+
   <table>
     <tr>
       <th bgcolor="#4CAF50"><font color="white"> Team </font></th>

@@ -4,7 +4,7 @@
 {% block nav_item_scoreboard %}active{% endblock nav_item_scoreboard %}
 {% block content %}
 
-<link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='styles/base.css') }}">
+<!-- <link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='styles/base.css') }}"> -->
 
 <div>
   <img style="vertical-align:middle; height:8em" src="/static/FFL-square.png">
@@ -13,31 +13,20 @@
 <br></br>
 
 <!-- ################## SELECT WEEK BUTTON ################## -->
-<!-- ToDo - Incorporate this into nav bar -->
-<style>
-</style>
 
 <div id="main" style="padding-left: 10px;">
-<h2 class="header-inline"> SCOREBOARD - {{ input1 }}</h2>
-<div class="dropdown">
-  <button class="dropbtn">Select Week</button>
-  <div class="dropdown-content">
-    {% for week_num in range(1,18) %}
-    <a href="/scoreboard/week{{ week_num }}">Week {{ week_num }}</a>
-    {% endfor %}
+  <h2 class="header-inline"> SCOREBOARD - {{ input1 }}</h2>
+  <div class="dropdown">
+    <button class="dropbtn">Select Week</button>
+    <div class="dropdown-content">
+      {% for week_num in range(1,18) %}
+      <a href="/scoreboard/week{{ week_num }}">Week {{ week_num }}</a>
+      {% endfor %}
+    </div>
   </div>
+  <br></br>
 </div>
 <br></br>
-</div>
-
-<br></br>
-
-<!-- ################## END OF SELECT WEEK BUTTON ################## -->
-
-<!-- ################## TABLE STYLE ################## -->
-<style>
-  
-</style>
 
 <!-- Body of Scoreboards -->
 
