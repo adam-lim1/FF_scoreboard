@@ -4,6 +4,8 @@
 {% block nav_item_scoreboard %}active{% endblock nav_item_scoreboard %}
 {% block content %}
 
+<link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='styles/base.css') }}">
+
 <div>
   <img style="vertical-align:middle; height:8em" src="/static/FFL-square.png">
   <span style="color:#E81A26; font-size:30px" >Fun Fantasy League </span>
@@ -13,68 +15,8 @@
 <!-- ################## SELECT WEEK BUTTON ################## -->
 <!-- ToDo - Incorporate this into nav bar -->
 <style>
-#main {
-  width: 450px;
-  border: 1px dotted black;
-}
-.header-inline {
-  margin: 0;
-    display: inline-block;
-}
-
-/* Style The Dropdown Button */
-.dropbtn {
-  background-color: #4CAF50;
-  color: white;
-  padding: 10px;
-  font-size: 16px;
-  border: none;
-  cursor: pointer;
-}
-
-/* The container <div> - needed to position the dropdown content */
-.dropdown {
-  position: relative;
-  /* display: inline-block; */
-  float: right
-}
-
-/* Dropdown Content (Hidden by Default) */
-.dropdown-content {
-  display: none;
-  position: absolute;
-  background-color: #f9f9f9;
-  min-width: 160px;
-  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
-  z-index: 1;
-}
-
-/* Links inside the dropdown */
-.dropdown-content a {
-  color: black;
-  padding: 12px 16px;
-  text-decoration: none;
-  display: block;
-}
-
-/* Change color of dropdown links on hover */
-.dropdown-content a:hover {background-color: #f1f1f1}
-
-/* Show the dropdown menu on hover */
-.dropdown:hover .dropdown-content {
-  display: block;
-}
-
-/* Change the background color of the dropdown button when the dropdown content is shown */
-.dropdown:hover .dropbtn {
-  background-color: #3e8e41;
-}
-
-body {
-    font-family: 'Helvetica', 'Arial', sans-serif;
-}
-
 </style>
+
 <div id="main" style="padding-left: 10px;">
 <h2 class="header-inline"> SCOREBOARD - {{ input1 }}</h2>
 <div class="dropdown">
@@ -94,19 +36,7 @@ body {
 
 <!-- ################## TABLE STYLE ################## -->
 <style>
-  table {
-    border-collapse: collapse;
-    padding-left: 100px;
-  }
-  th, td {
-    border: 1px solid black;
-    padding: 10px;
-    text-align: left;
-    font-weight: normal;
-  }
-  tr.noBorder td {
-  border: 0;
-}
+  
 </style>
 
 <!-- Body of Scoreboards -->
