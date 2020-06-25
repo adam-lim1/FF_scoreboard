@@ -25,30 +25,6 @@
 </head>
 
 <body>
-  <style>
-    html,
-    body {
-       margin:0;
-       padding:0;
-       height:100%;
-    }
-    #container_div {
-       min-height:100%;
-       position:relative;
-    }
-
-    #body_div {
-       padding:10px;
-       padding-bottom:60px;   /* Height of the footer */
-    }
-    #footer_div {
-       position:absolute;
-       bottom:0;
-       width:100%;
-       height:60px;   /* Height of the footer */
-       background:#6cf;
-    }
-  </style>
 
   <div id="container_div">
   <!-- ################## TOP NAV BAR  ################## -->
@@ -62,14 +38,26 @@
       <i class="fa fa-bars"></i>
     </a>
   </div>
-  <!-- ################## END TOP NAV  ################## -->
-  <!-- JINJA Content -->
+
+  <!-- ################## JINJA Body Content ################## -->
   <div id="body_div">
   {% block content %}
   {% endblock %}
-</div>
-<div id="footer_div">this is footer</div>
+  </div>
 
-</div>
+  <!-- ################## FOOTER ################## -->
+  <!-- Reference on HTML footer formatting: https://matthewjamestaylor.com/bottom-footer-->
+  <div id="footer_div">
+    <div style=" width: 80%; margin: 0 auto; text-align: center;"> <!-- background-color:red; -->
+      <hr>
+      <p style="font-size: 0.7em; padding-top:0.3125em">
+        Version 0.1
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        <a style="text-decoration:none;" href="https://github.com/adam-lim1/FF_scoreboard/tree/master">View on Github</a>
+      </p>
+    </div>
+  </div>
+
+  </div>
 </body>
 </html>
