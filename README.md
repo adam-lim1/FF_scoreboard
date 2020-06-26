@@ -26,3 +26,35 @@ python setup/dynamodb_create_table.py
 ## Helpful References
 - ESPN Fantasy Football API: https://stmorse.github.io/journal/espn-fantasy-3-python.html
 - Translating Cognito Tokens: https://github.com/cgauge/Flask-AWSCognito/tree/6882a0c246dcc8da8e299c1e8b468ef5899bc373
+
+## File Structure
+```
+├── README.md
+├── application.py
+├── colors.py
+├── config.py
+├── espn.py
+├── forms.py
+├── helpers.py
+├── requirements.txt
+├── setup
+│   ├── dynamodb_create_multipliers.py
+│   ├── dynamodb_create_table.py
+│   ├── dynamodb_create_teams.py
+│   ├── multiplayer_table_sample_data.csv
+│   └── multipliers.csv
+├── static
+│   ├── FFL-square-outline.png
+│   ├── FFL-square.png
+│   └── styles
+│       └── base.css
+└── templates
+    ├── base.html
+    ├── input_form.html
+    ├── multiplier_results.html
+    ├── multipliers.html
+    ├── scoreboard.html
+    ├── submission_fail.html
+    ├── submission_success.html
+    └── temp_redirect.html
+```
