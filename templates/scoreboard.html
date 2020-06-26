@@ -10,24 +10,13 @@
 
 <!-- ################## SELECT WEEK BUTTON ################## -->
 
-<div id="main" style="padding-left: 10px;">
-  <h2 class="header-inline"> SCOREBOARD - {{ input1 }}</h2>
-  <!-- <div class="dropdown">
-    <button class="dropbtn">Select Week</button>
-    <div class="dropdown-content">
-      {% for week_num in range(1,18) %}
-      <a href="/scoreboard/week{{ week_num }}">Week {{ week_num }}</a>
-      {% endfor %}
-    </div>
-  </div> -->
-  <br></br>
-</div>
-<br></br>
-
 <!-- Body of Scoreboards -->
 
-<div style="padding-left: 10px; padding-right: 10px;">
-  <table>
+<div style="padding-left: 10px; padding-right: 10px; text-align: center;">
+  <h2 class="header-inline"> SCOREBOARD - {{ input1 }}</h2>
+  <br></br>
+
+  <table style="display: inline-table;">
     {% for n in scoreboardDict.keys() %}
       <tr class="noBorder">
         <td colspan="5"><b>Matchup {{ n }}</b></td>
