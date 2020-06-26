@@ -12,7 +12,8 @@ body {
 /* ################## CSS FOR NAV BAR ################## */
 .topnav {
   overflow: hidden;
-  background-color: #333;
+  /* background-color: #333; */
+  background-color: #043C79;
   /* ToDo - Anchor navbar to top of screen */
 }
 
@@ -41,10 +42,10 @@ body {
   color: black;
 }
 
-.topnav a.active {
-  background-color: #4CAF50;
+/* .topnav a.active {
+  background-color: #333;
   color: white;
-}
+} */
 
 .topnav .icon {
   display: none;

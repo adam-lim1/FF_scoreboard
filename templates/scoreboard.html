@@ -6,10 +6,10 @@
 
 <!-- <link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='styles/base.css') }}"> -->
 
-<div>
-  <img style="vertical-align:middle; height:8em" src="/static/FFL-square.png">
+<!-- <div>
+  <img style="vertical-align:middle; height:8em;" src="/static/FFL-square.png">
   <span style="color:#E81A26; font-size:30px" >Fun Fantasy League </span>
-</div>
+</div> -->
 <br></br>
 
 <!-- ################## SELECT WEEK BUTTON ################## -->
@@ -37,11 +37,11 @@
         <td colspan="5"><b>Matchup {{ n }}</b></td>
       </tr>
       <tr>
-        <th bgcolor="#4CAF50"><font color="white"> Team </font></th>
-        <th bgcolor="#4CAF50"><font color="white"> Multiplayer </font></th>
-        <th bgcolor="#4CAF50"><font color="white"> Multiplier </font></th>
-        <th bgcolor="#4CAF50"><font color="white"> Score Adjustment </font></th>
-        <th bgcolor="#4CAF50"><font color="white"> Overall Score (Adjusted) </font></th>
+        <th bgcolor="#E81A26"><font color="white"> Team </font></th>
+        <th bgcolor="#E81A26"><font color="white"> Multiplayer </font></th>
+        <th bgcolor="#E81A26"><font color="white"> Multiplier </font></th>
+        <th bgcolor="#E81A26"><font color="white"> Score Adjustment </font></th>
+        <th bgcolor="#E81A26"><font color="white"> Overall Score (Adjusted) </font></th>
       </tr>
       <tr>
         <td>{{ scoreboardDict[n]['Home']['Team'] }}</td>
@@ -64,6 +64,6 @@
   </table>
 
   <br></br>
-</div>
 
+</div>
 {% endblock %}
