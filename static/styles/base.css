@@ -1,6 +1,6 @@
 body {
   margin: 0;
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: 'Roboto', Arial, sans-serif;
   height:100%;
 }
 
@@ -130,10 +130,14 @@ table {
   padding-left: 100px;
 }
 th, td {
-  border: 1px solid black;
+  /* border: 1px solid #EEEEEE; */
   padding: 10px;
   text-align: left;
   font-weight: normal;
+}
+
+td{
+  border: 1px solid #EEEEEE;
 }
 tr.noBorder td {
 border: 0;
