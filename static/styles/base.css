@@ -10,11 +10,10 @@ body {
 }
 
 /* ################## CSS FOR NAV BAR ################## */
+
 .topnav {
   overflow: hidden;
-  /* background-color: #333; */
   background-color: #043C79;
-  /* ToDo - Anchor navbar to top of screen */
 }
 
 .topnav a {
@@ -27,23 +26,8 @@ body {
   font-size: 17px;
 }
 
-#logo_nav {
-  float: left;
-  display: block;
-  color: #f2f2f2;
-  text-align: center;
-  text-decoration: none;
-  /* background-color: red; */
-  padding: 0px 16px 0px;
-}
-
-.topnav a:hover {
-  background-color: #ddd;
-  color: black;
-}
-
-/* .topnav a.active {
-  background-color: #333;
+/* .active {
+  background-color: #4CAF50;
   color: white;
 } */
 
@@ -51,8 +35,58 @@ body {
   display: none;
 }
 
+.dropdown {
+  float: left;
+  overflow: hidden;
+}
+
+.dropdown .dropbtn {
+  font-size: 17px;
+  border: none;
+  outline: none;
+  color: white;
+  padding: 14px 16px;
+  background-color: inherit;
+  font-family: inherit;
+  margin: 0;
+}
+
+.dropdown-content {
+  display: none;
+  position: absolute;
+  background-color: #f9f9f9;
+  min-width: 160px;
+  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+  z-index: 1;
+}
+
+.dropdown-content a {
+  float: none;
+  color: black;
+  padding: 12px 16px;
+  text-decoration: none;
+  display: block;
+  text-align: left;
+}
+
+.topnav a:hover, .dropdown:hover .dropbtn {
+  background-color: #555;
+  color: white;
+}
+
+.dropdown-content a:hover {
+  background-color: #ddd;
+  color: black;
+}
+
+.dropdown:hover .dropdown-content {
+  display: block;
+}
+
 @media screen and (max-width: 600px) {
-  .topnav a:not(:first-child) {display: none;}
+  .topnav a:not(:first-child), .dropdown .dropbtn {
+    display: none;
+  }
   .topnav a.icon {
     float: right;
     display: block;
@@ -71,6 +105,13 @@ body {
     display: block;
     text-align: left;
   }
+  .topnav.responsive .dropdown {float: none;}
+  .topnav.responsive .dropdown-content {position: relative;}
+  .topnav.responsive .dropdown .dropbtn {
+    display: block;
+    width: 100%;
+    text-align: left;
+  }
 }
 
 /* SCOREBOARD */
@@ -81,54 +122,6 @@ body {
 .header-inline {
   margin: 0;
     display: inline-block;
-}
-
-/* ################## STYLE SCOREBOARD DROPDOWN BUTTON ################## */
-.dropbtn {
-  background-color: #4CAF50;
-  color: white;
-  padding: 10px;
-  font-size: 16px;
-  border: none;
-  cursor: pointer;
-}
-
-/* The container <div> - needed to position the dropdown content */
-.dropdown {
-  position: relative;
-  /* display: inline-block; */
-  float: right
-}
-
-/* Dropdown Content (Hidden by Default) */
-.dropdown-content {
-  display: none;
-  position: absolute;
-  background-color: #f9f9f9;
-  min-width: 160px;
-  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
-  z-index: 1;
-}
-
-/* Links inside the dropdown */
-.dropdown-content a {
-  color: black;
-  padding: 12px 16px;
-  text-decoration: none;
-  display: block;
-}
-
-/* Change color of dropdown links on hover */
-.dropdown-content a:hover {background-color: #f1f1f1}
-
-/* Show the dropdown menu on hover */
-.dropdown:hover .dropdown-content {
-  display: block;
-}
-
-/* Change the background color of the dropdown button when the dropdown content is shown */
-.dropdown:hover .dropbtn {
-  background-color: #3e8e41;
 }
 
 /* ################## TABLE FORMATTING ################## */

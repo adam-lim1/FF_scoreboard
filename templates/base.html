@@ -29,8 +29,19 @@
   <div id="container_div">
   <!-- ################## TOP NAV BAR  ################## -->
   <div class="topnav" id="myTopnav">
-    <a href="/" id="logo_nav"><img style="height: 2.5em;" src="../static/FFL-square.png"></a> <!-- border: 4px solid black; -->
-    <a class="{% block nav_item_scoreboard %}{% endblock nav_item_scoreboard %}" href="/">Scoreboard</a>
+    <a href="/" style="padding: 0px 16px 0px;"><img style="height: 2.5em;" src="../static/FFL-square.png"></a> <!-- border: 4px solid black; -->
+
+    <div class="dropdown">
+      <button class="dropbtn">Scoreboard
+        <i class="fa fa-caret-down"></i>
+      </button>
+      <div class="dropdown-content">
+        {% for week_num in range(1,18) %}
+        <a href="/scoreboard/week{{ week_num }}">Week {{ week_num }}</a>
+        {% endfor %}
+      </div>
+    </div>
+
     <a class="{% block nav_item_pastplayers %}{% endblock nav_item_pastplayers %}" href="/MultiplierResults">Past Multipliers</a>
     <a class="{% block nav_item_setplayer %}{% endblock nav_item_setplayer %}" href="/input_form">Set Multiplayer</a>
     <a class="{% block nav_item_rules %}{% endblock nav_item_rules %}" href="https://docs.google.com/document/d/1j1L0CLqh3-m9AcnyiDmasLLbqKN89qSoWqiWPLfRlOg/edit" target="_blank">League Rules</a>
