@@ -4,145 +4,51 @@
 {% block nav_item_scoreboard %}active{% endblock nav_item_scoreboard %}
 {% block content %}
 
-<div>
-  <img style="vertical-align:middle; height:8em" src="/static/FFL-square.png">
-  <span style="color:#E81A26; font-size:30px" >Fun Fantasy League </span>
-</div>
+<!-- <link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='styles/base.css') }}"> -->
+
 <br></br>
 
 <!-- ################## SELECT WEEK BUTTON ################## -->
-<!-- ToDo - Incorporate this into nav bar -->
-<style>
-#main {
-  width: 450px;
-  border: 1px dotted black;
-}
-.header-inline {
-  margin: 0;
-    display: inline-block;
-}
-
-/* Style The Dropdown Button */
-.dropbtn {
-  background-color: #4CAF50;
-  color: white;
-  padding: 10px;
-  font-size: 16px;
-  border: none;
-  cursor: pointer;
-}
-
-/* The container <div> - needed to position the dropdown content */
-.dropdown {
-  position: relative;
-  /* display: inline-block; */
-  float: right
-}
-
-/* Dropdown Content (Hidden by Default) */
-.dropdown-content {
-  display: none;
-  position: absolute;
-  background-color: #f9f9f9;
-  min-width: 160px;
-  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
-  z-index: 1;
-}
-
-/* Links inside the dropdown */
-.dropdown-content a {
-  color: black;
-  padding: 12px 16px;
-  text-decoration: none;
-  display: block;
-}
-
-/* Change color of dropdown links on hover */
-.dropdown-content a:hover {background-color: #f1f1f1}
-
-/* Show the dropdown menu on hover */
-.dropdown:hover .dropdown-content {
-  display: block;
-}
-
-/* Change the background color of the dropdown button when the dropdown content is shown */
-.dropdown:hover .dropbtn {
-  background-color: #3e8e41;
-}
-
-body {
-    font-family: 'Helvetica', 'Arial', sans-serif;
-}
-
-</style>
-<div id="main" style="padding-left: 10px;">
-<h2 class="header-inline"> SCOREBOARD - {{ input1 }}</h2>
-<div class="dropdown">
-  <button class="dropbtn">Select Week</button>
-  <div class="dropdown-content">
-    {% for week_num in range(1,18) %}
-    <a href="/scoreboard/week{{ week_num }}">Week {{ week_num }}</a>
-    {% endfor %}
-  </div>
-</div>
-<br></br>
-</div>
-
-<br></br>
-
-<!-- ################## END OF SELECT WEEK BUTTON ################## -->
-
-<!-- ################## TABLE STYLE ################## -->
-<style>
-  table {
-    border-collapse: collapse;
-    padding-left: 100px;
-  }
-  th, td {
-    border: 1px solid black;
-    padding: 10px;
-    text-align: left;
-    font-weight: normal;
-  }
-  tr.noBorder td {
-  border: 0;
-}
-</style>
 
 <!-- Body of Scoreboards -->
 
-<div style="padding-left: 10px; padding-right: 10px;">
-  <table>
+<div style="padding-left: 10px; padding-right: 10px; text-align: center;">
+  <h2 class="header-inline"> SCOREBOARD - {{ input1 }}</h2>
+  <br></br>
+
+  <table style="display: inline-table;">
     {% for n in scoreboardDict.keys() %}
       <tr class="noBorder">
         <td colspan="5"><b>Matchup {{ n }}</b></td>
       </tr>
       <tr>
-        <th bgcolor="#4CAF50"><font color="white"> Team </font></th>
-        <th bgcolor="#4CAF50"><font color="white"> Multiplayer </font></th>
-        <th bgcolor="#4CAF50"><font color="white"> Multiplier </font></th>
-        <th bgcolor="#4CAF50"><font color="white"> Score Adjustment </font></th>
-        <th bgcolor="#4CAF50"><font color="white"> Overall Score (Adjusted) </font></th>
+        <th bgcolor="#E81A26"><font color="white"> Team </font></th>
+        <th bgcolor="#E81A26"><font color="white"> Multiplayer </font></th>
+        <th bgcolor="#E81A26"><font color="white"> Multiplier </font></th>
+        <th bgcolor="#E81A26"><font color="white"> Score Adjustment </font></th>
+        <th bgcolor="#E81A26"><font color="white"> Overall Score (Adjusted) </font></th>
       </tr>
       <tr>
-        <td>{{ scoreboardDict[n]['Home']['Team'] }}</td>
-        <td>{{ scoreboardDict[n]['Home']['Multiplayer'] }}</td>
-        <td>{{ scoreboardDict[n]['Home']['Multiplier'] }}</td>
-        <td>{{ scoreboardDict[n]['Home']['Score Adjustment'] }}</td>
-        <td>{{ scoreboardDict[n]['Home']['Adjusted Score'] }}</td>
+        <td bgcolor="white">{{ scoreboardDict[n]['Home']['Team'] }}</td>
+        <td bgcolor="white">{{ scoreboardDict[n]['Home']['Multiplayer'] }}</td>
+        <td bgcolor="white">{{ scoreboardDict[n]['Home']['Multiplier'] }}</td>
+        <td bgcolor="white">{{ scoreboardDict[n]['Home']['Score Adjustment'] }}</td>
+        <td bgcolor="white">{{ scoreboardDict[n]['Home']['Adjusted Score'] }}</td>
       </tr>
       <tr>
-        <td>{{ scoreboardDict[n]['Away']['Team'] }}</td>
-        <td>{{ scoreboardDict[n]['Away']['Multiplayer'] }}</td>
-        <td>{{ scoreboardDict[n]['Away']['Multiplier'] }}</td>
-        <td>{{ scoreboardDict[n]['Away']['Score Adjustment'] }}</td>
-        <td>{{ scoreboardDict[n]['Away']['Adjusted Score'] }}</td>
+        <td bgcolor="white">{{ scoreboardDict[n]['Away']['Team'] }}</td>
+        <td bgcolor="white">{{ scoreboardDict[n]['Away']['Multiplayer'] }}</td>
+        <td bgcolor="white">{{ scoreboardDict[n]['Away']['Multiplier'] }}</td>
+        <td bgcolor="white">{{ scoreboardDict[n]['Away']['Score Adjustment'] }}</td>
+        <td bgcolor="white">{{ scoreboardDict[n]['Away']['Adjusted Score'] }}</td>
       </tr>
       <tr class="noBorder">
         <td colspan="5"> </td>
       </tr>
     {% endfor %}
   </table>
-</div>
 
+  <br></br>
+
+</div>
 {% endblock %}

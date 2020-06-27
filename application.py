@@ -43,6 +43,10 @@ multiplayer = dynamodb.Table('multiplayer_input')
 teams = dynamodb.Table('teams')
 multiplier = dynamodb.Table('multiplier_input')
 
+@application.context_processor
+def inject_version():
+    return dict(version=Config.version)
+
 ################################################################################
 ##  ******************* RENDER PAGES WITH FLASK *******************
 ################################################################################
@@ -97,7 +101,7 @@ def weekGeneric_page(viewWeek):
 
 @application.route('/MultiplierResults')
 def multiplier_page():
-  
+
     # Get current week
     currentWeek = espn_stats.getCurrentWeek()
 

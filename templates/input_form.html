@@ -2,16 +2,8 @@
 {% block nav_item_setplayer %}active{% endblock nav_item_setplayer %}
 {% block content %}
 
-<head>
-<style>
-div {
-  padding-left: 25px;
-}
-</style>
-</head>
+<!-- <link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='styles/base.css') }}"> -->
 
-<body>
-<div>
     <h1>Select Multiplayer</h1>
     <p> Welcome, {{ username }}. This page would be redirected to behind login page </p>
     <form action="" method="post" novalidate>
@@ -28,7 +20,5 @@ div {
         <br></br>
         <p> * required </p>
     </form>
-</div>
-</body>
 
 {% endblock %}

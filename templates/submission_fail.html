@@ -2,19 +2,23 @@
 {% block nav_item_setplayer %}active{% endblock nav_item_setplayer %}
 {% block content %}
 
-<h2> Hello, {{ username }} </h2>
-<p style="color:red"> ERROR: Your multiplayer was not updated. {{ error }}</p>
+<!-- <link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='styles/base.css') }}"> -->
 
-{% with messages = get_flashed_messages() %}
-{% if messages %}
-<ul>
-    {% for message in messages %}
-    <li>{{ message }}</li>
-    {% endfor %}
-</ul>
-{% endif %}
-{% endwith %}
+<div class="body-div">
+  <h2> Hello, {{ username }} </h2>
+  <p style="color:red"> ERROR: Your multiplayer was not updated. {{ error }}</p>
 
-<a href="/input_form"> Create a new submission </a>
+  {% with messages = get_flashed_messages() %}
+  {% if messages %}
+  <ul>
+      {% for message in messages %}
+      <li>{{ message }}</li>
+      {% endfor %}
+  </ul>
+  {% endif %}
+  {% endwith %}
+
+  <a href="/input_form"> Create a new submission </a>
+</div>
 
 {% endblock %}
