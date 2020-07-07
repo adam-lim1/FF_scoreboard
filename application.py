@@ -81,7 +81,7 @@ def weekGeneric_page(viewWeek):
 
     # LOOK UP MULTIPLAYER (BY WEEK/TEAM ID) VIA AWS DYNAMO DB QUERY
     scoreboardDF['Multiplayer'] = scoreboardDF['teamID'].apply(lambda x:
-        multiplayer.get_item(Key={'week':int(viewWeek), 'team':str(x)})
+        multiplayer.get_item(Key={'week':str(viewWeek), 'teamID':str(x)})
         .get('Item', {})
         .get('multiplayer'))
 
@@ -157,7 +157,7 @@ def input_form():
             teamID = teams.get_item(Key={'username':session['username']})['Item']['teamID']
 
             # Check if existing entry not in play and submission not in play. ToDo - Error handling if no entry
-            existing_multiplayer = multiplayer.get_item(Key={'week':currentWeek, 'team':teamID})['Item']['multiplayer']
+            existing_multiplayer = multiplayer.get_item(Key={'week':str(currentWeek), 'teamID':teamID})['Item']['multiplayer']
 
             if espn_stats.getPlayerLockStatus(existing_multiplayer) == False:
                 if espn_stats.getPlayerLockStatus(form.multiplayer.data) == False: # Success
