@@ -10,6 +10,7 @@ import random
 import boto3
 from boto3.dynamodb.conditions import Key
 import math
+import logging
 
 import helpers as helpers
 import colors as colors
@@ -19,6 +20,9 @@ from espn import espn
 
 application = Flask(__name__)
 application.config.from_object(Config)
+
+application.logger.setLevel(logging.INFO)
+application.logger.info("Application Intialized")
 
 ################################################################################
 ##  ******************* GET CONFIG INFO *******************
@@ -159,19 +163,28 @@ def input_form():
             # Check if existing entry not in play and submission not in play. ToDo - Error handling if no entry
             existing_multiplayer = multiplayer.get_item(Key={'week':str(currentWeek), 'teamID':teamID})['Item']['multiplayer']
 
-            if espn_stats.getPlayerLockStatus(existing_multiplayer) == False:
+            if False == False: #espn_stats.getPlayerLockStatus(existing_multiplayer) == False:
                 if espn_stats.getPlayerLockStatus(form.multiplayer.data) == False: # Success
                     # ToDo - Check that player is on roster?
                     # Write new multiplayer - ToDo - error handling
-                    multiplayer.put_item(Item={'week':currentWeek, 'team':teamID, 'seed':'123', 'multiplayer':form.multiplayer.data})
+                    multiplayer.put_item(Item={'week':currentWeek, 'team':teamID, 'multiplayer':form.multiplayer.data})
 
                     # write multiplier
                     helpers.updateMultiplier(currentWeek=currentWeek, teamID=teamID, multiplier_db_table=multiplier)
 
+                    application.logger.info("MULTIPLAYER UPDATE: SUCCESS. {user} / {entry}"
+                    .format(user=session['username'], entry=form.multiplayer.data))
+
                     return render_template('submission_success.html', username=session['username'], time=datetime.datetime.now())
                 else:
+                    application.logger.info("MULTIPLAYER UPDATE: FAIL (Invalid Entry). {user} / {entry}"
+                    .format(user=session['username'], entry=form.multiplayer.data))
+
                     return render_template('submission_fail.html', username=session['username'], time=datetime.datetime.now(), error='Multiplayer entry is not valid')
             else:
+                application.logger.info("MULTIPLAYER UPDATE: FAIL (Existing Entry Locked). {user} / {entry}"
+                .format(user=session['username'], entry=form.multiplayer.data))
+
                 return render_template('submission_fail.html', username=session['username'], time=datetime.datetime.now(), error='Existing multiplayer entry is already locked')
 
         return render_template('input_form.html', form=form, username=session['username']) # ToDo - Clean up this section
@@ -214,6 +227,7 @@ def cognito_response():
     user_info = cognito_client.get_user(AccessToken=access_token)
     session['username'] = user_info['Username']
     print("Authenticated Username: {}".format(session['username']))
+    application.logger.info("Authenticated Username: {}".format(session['username']))
 
     return redirect(url_for('input_form'))
 
