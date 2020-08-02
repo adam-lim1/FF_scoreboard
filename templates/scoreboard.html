@@ -14,6 +14,11 @@
 
 <div style="padding-left: 10px; padding-right: 10px; text-align: center;">
   <h2 class="header-inline"> SCOREBOARD - {{ input1 }}</h2>
+  <p id="demo" style="color: black; font-size: 0.8em;"></p>
+  <script>
+  var d = new Date();
+  document.getElementById("demo").innerHTML = d;
+  </script>
   <br></br>
 
   <table style="display: inline-table;">
@@ -22,25 +27,24 @@
         <td colspan="5"><b>Matchup {{ n }}</b></td>
       </tr>
       <tr>
-        <th bgcolor="#E81A26"><font color="white"> Team </font></th>
-        <th bgcolor="#E81A26"><font color="white"> Multiplayer </font></th>
-        <th bgcolor="#E81A26"><font color="white"> Multiplier </font></th>
-        <th bgcolor="#E81A26"><font color="white"> Score Adjustment </font></th>
-        <th bgcolor="#E81A26"><font color="white"> Overall Score (Adjusted) </font></th>
+        <th bgcolor="#E81A26" style="color: white; font-size: 0.875em;"> Team </th>
+        <th bgcolor="#E81A26" style="color: white; font-size: 0.875em;"> Multiplayer </th>
+        <th bgcolor="#E81A26" style="color: white; font-size: 0.875em;"> Multiplier </th>
+        <!-- <th bgcolor="#E81A26"><font color="white"> Score Adjustment </font></th> -->
+        <!-- <th bgcolor="#E81A26"><font color="white"> Overall Score (Adjusted) </font></th> -->
+        <th bgcolor="#E81A26" style="color: white; font-size: 0.875em;"> Adjusted Score </th>
       </tr>
       <tr>
-        <td bgcolor="white">{{ scoreboardDict[n]['Home']['Team'] }}</td>
-        <td bgcolor="white">{{ scoreboardDict[n]['Home']['Multiplayer'] }}</td>
-        <td bgcolor="white">{{ scoreboardDict[n]['Home']['Multiplier'] }}</td>
-        <td bgcolor="white">{{ scoreboardDict[n]['Home']['Score Adjustment'] }}</td>
-        <td bgcolor="white">{{ scoreboardDict[n]['Home']['Adjusted Score'] }}</td>
+        <td bgcolor="white" style="font-size: 0.875em;">{{ scoreboardDict[n]['Home']['Team'] }}</td>
+        <td bgcolor="white" style="font-size: 0.875em;">{{ scoreboardDict[n]['Home']['Multiplayer'] }}</td>
+        <td bgcolor="white" style="font-size: 0.875em;">{{ scoreboardDict[n]['Home']['Multiplier'] }}</td>
+        <td bgcolor="white" style="font-size: 0.875em;">{{ scoreboardDict[n]['Home']['Adjusted Score'] }} ({{ scoreboardDict[n]['Home']['Score Adjustment'] }})</td>
       </tr>
       <tr>
-        <td bgcolor="white">{{ scoreboardDict[n]['Away']['Team'] }}</td>
-        <td bgcolor="white">{{ scoreboardDict[n]['Away']['Multiplayer'] }}</td>
-        <td bgcolor="white">{{ scoreboardDict[n]['Away']['Multiplier'] }}</td>
-        <td bgcolor="white">{{ scoreboardDict[n]['Away']['Score Adjustment'] }}</td>
-        <td bgcolor="white">{{ scoreboardDict[n]['Away']['Adjusted Score'] }}</td>
+        <td bgcolor="white" style="font-size: 0.875em;">{{ scoreboardDict[n]['Away']['Team'] }}</td>
+        <td bgcolor="white" style="font-size: 0.875em;">{{ scoreboardDict[n]['Away']['Multiplayer'] }}</td>
+        <td bgcolor="white" style="font-size: 0.875em;">{{ scoreboardDict[n]['Away']['Multiplier'] }}</td>
+        <td bgcolor="white" style="font-size: 0.875em;">{{ scoreboardDict[n]['Away']['Adjusted Score'] }} ({{ scoreboardDict[n]['Away']['Score Adjustment'] }})</td>
       </tr>
       <tr class="noBorder">
         <td colspan="5"> </td>

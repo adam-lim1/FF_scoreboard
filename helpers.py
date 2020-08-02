@@ -50,6 +50,7 @@ def mergeScores(teamsDF, scoreboardDF, playerScoresDF):
     df['Adjustment'] = -1*(1-df['Multiplier'])*df['Actual']
     df['AdjustedScore'] = df['Adjustment'] + df['Points']
     df['AdjustedScore'] = np.where(df['AdjustedScore'].isnull()==True, df['Points'], df['AdjustedScore'])
+    # df['Adjustment'] = df['Adjustment'].apply(lambda x: '+'+str(x) if x > 0 else str(x))
 
     return df
 
@@ -71,6 +72,7 @@ def scoresToDict(scoreboardDF, nbrGames):
                 'Score Adjustment': scoreboardDF.query('matchupID == {}'.format(game)).query('home_away=="{}"'.format(home_away))['Adjustment'].values[0],
                 'Adjusted Score': scoreboardDF.query('matchupID == {}'.format(game)).query('home_away=="{}"'.format(home_away))['AdjustedScore'].values[0],
             }
+            teamDict['Score Adjustment'] = '+'+str(teamDict['Score Adjustment']) if teamDict['Score Adjustment'] > 0 else teamDict['Score Adjustment']
             matchupDict[home_away] = teamDict
         scoreboardDict[game] = matchupDict
 
