@@ -81,13 +81,16 @@ def weekGeneric_page(viewWeek):
 
     # LOOKUP MULTIPLIER (BY WEEK/TEAM ID)
     # Pull Multiplier from AWS
-    scoreboardDF['Multiplier'] = scoreboardDF['teamID'].apply(lambda x: float(multiplier.get_item(Key={'week':str(viewWeek), 'teamID':str(x)})['Item']['Multiplier']))
+    scoreboardDF['Multiplier'] = scoreboardDF['teamID'].apply(lambda x:
+        float(multiplier.get_item(Key={'week':str(viewWeek), 'teamID':str(x)})
+        .get('Item',{})
+        .get('Multiplier', '0')))
 
     # LOOK UP MULTIPLAYER (BY WEEK/TEAM ID) VIA AWS DYNAMO DB QUERY
     scoreboardDF['Multiplayer'] = scoreboardDF['teamID'].apply(lambda x:
         multiplayer.get_item(Key={'week':str(viewWeek), 'teamID':str(x)})
         .get('Item', {})
-        .get('multiplayer'))
+        .get('multiplayer', '-'))
 
     # GET PLAYER SCORES FOR WEEK (AND APPEND)
     playerScoresDF = espn_stats.getWeekPlayerScores(viewWeek)
