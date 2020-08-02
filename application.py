@@ -167,7 +167,7 @@ def input_form():
                 if espn_stats.getPlayerLockStatus(form.multiplayer.data) == False: # Success
                     # ToDo - Check that player is on roster?
                     # Write new multiplayer - ToDo - error handling
-                    multiplayer.put_item(Item={'week':currentWeek, 'team':teamID, 'multiplayer':form.multiplayer.data})
+                    multiplayer.put_item(Item={'week':currentWeek, 'teamID':teamID, 'multiplayer':form.multiplayer.data})
 
                     # write multiplier
                     helpers.updateMultiplier(currentWeek=currentWeek, teamID=teamID, multiplier_db_table=multiplier)
