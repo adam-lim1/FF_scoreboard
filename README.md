@@ -1,5 +1,8 @@
 # FF_scoreboard
-Custom scoreboard view for ESPN fantasy football league
+Custom scoreboard view for ESPN fantasy football league.
+Built utilizing Flask and deployed with AWS.
+
+![scoreboard-combined](static/scoreboard-combined.JPG)
 
 ## Getting Started
 **Running the Scoreboard Locally**
@@ -22,6 +25,13 @@ python setup/dynamodb_create_multipliers.py
 python setup/dynamodb_create_teams.py
 python setup/dynamodb_create_table.py
 ```
+
+**Deploying with Elastic Beanstalk**
+```
+eb init
+eb create ffl-scoreboard
+```
+https://docs.aws.amazon.com/elasticbeanstalk/latest/dg/create-deploy-python-flask.html
 
 ## Helpful References
 - ESPN Fantasy Football API: https://stmorse.github.io/journal/espn-fantasy-3-python.html
