@@ -1,0 +1,4 @@
+__pycache__
+ff-venv/
+*.ipynb
+.DS_Store

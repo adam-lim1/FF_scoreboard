@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block nav_item_setplayer %}active{% endblock nav_item_setplayer %}
+{% block content %}
+
+<!-- <link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='styles/base.css') }}"> -->
+
+<div class="body-div">
+  <h2> Hello, {{ username }} </h2>
+  <p style="color:#4CAF50"> SUCCESS: Your multiplayer submission has been updated at {{ time }}.</p>
+
+  {% with messages = get_flashed_messages() %}
+  {% if messages %}
+  <ul>
+      {% for message in messages %}
+      <li>{{ message }}</li>
+      {% endfor %}
+  </ul>
+  {% endif %}
+  {% endwith %}
+
+  <a href="/input_form"> Create a new submission </a>
+</div>
+
+{% endblock %}
