@@ -9,7 +9,7 @@ Flask-WTF==0.14.3
 httplib2==0.18.0
 idna==2.6
 itsdangerous==1.1.0
-Jinja2==2.10.3
+Jinja2==2.11.3
 MarkupSafe==1.1.1
 numpy==1.17.3
 oauthlib==3.1.0
